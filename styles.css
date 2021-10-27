@@ -9,12 +9,14 @@ body {
   width: 560px;
   display: flex;
   flex-wrap: wrap;
-  background-color: white;
+  background-color: transparent;
 }
 
 .grid div {
-  height: 70px;
-  width: 70px;
+  height: 66px;
+  width: 66px;
+  border-radius: 10px;
+  margin: 2px;
 }
 
 .img-gumball {
@@ -97,8 +99,8 @@ ul {
   }
 
   .grid div {
-    height: 60px;
-    width: 60px;
+    height: 56px;
+    width: 56px;
   }
 
   nav div h1 {
@@ -113,7 +115,7 @@ ul {
   }
 
   .grid div {
-    height: 50px;
-    width: 50px;
+    height: 46px;
+    width: 46px;
   }
 }
