@@ -17,6 +17,7 @@ body {
   width: 66px;
   border-radius: 10px;
   margin: 2px;
+  box-shadow: -2px 4px 6px 2px rgba(255, 255, 255, 0.1);
 }
 
 .img-gumball {

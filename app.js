@@ -5,17 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let score = 0;
 
   const gumballs = ['bop', 'bud', 'chum', 'clunk', 'dapp', 'eke'];
-  const candyColors = [
-    'purple',
-    'orange',
-    'midnightblue',
-    'tomato',
-    'violet',
-    'yellow'
-  ];
 
-  let randomColor = getRandColor();
-  let lastColor = candyColors[randomColor];
+  let randomImg = getRandImg();
+  let lastImg = gumballs[randomImg];
 
   function createBoard() {
     for (let i = 0; i < width * width; i++) {
@@ -23,25 +15,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function getRandColor() {
-    return Math.floor(Math.random() * candyColors.length);
+  function getRandImg() {
+    return Math.floor(Math.random() * gumballs.length);
   }
 
   function createCell(i) {
-    randomColor = getRandColor();
+    randomImg = getRandImg();
     if (i > 8) {
       if (
-        candyColors[randomColor] !=
-          document.getElementById(i - 2).style.backgroundColor &&
-        candyColors[randomColor] !=
-          document.getElementById(i - 8).style.backgroundColor
+        gumballs[randomImg] !=
+          document
+            .getElementById(i - 2)
+            .getElementsByTagName('img')[0]
+            .getAttribute('alt') &&
+        gumballs[randomImg] !=
+          document
+            .getElementById(i - 8)
+            .getElementsByTagName('img')[0]
+            .getAttribute('alt')
       ) {
         generateCell(i);
       } else {
         createCell(i);
       }
     } else {
-      if (candyColors[randomColor] != lastColor) {
+      if (gumballs[randomImg] != lastImg) {
         generateCell(i);
       } else {
         createCell(i);
@@ -53,22 +51,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const square = document.createElement('div');
     square.setAttribute('draggable', true);
     square.setAttribute('id', i);
-    square.innerHTML = `<img class="img-gumball" src="./imgs/${gumballs[randomColor]}.png" alt="${gumballs[randomColor]}" />`;
-    square.style.backgroundColor = candyColors[randomColor];
-    lastColor = candyColors[randomColor];
+    square.innerHTML = `<img class="img-gumball" src="./imgs/${gumballs[randomImg]}.png" alt="${gumballs[randomImg]}" />`;
+    lastImg = gumballs[randomImg];
     grid.appendChild(square);
     squares.push(square);
   }
 
   createBoard();
 
-  let colorBeingDragged;
-  let colorBeingReplaced;
   let squareIdBeingDragged;
   let squareIdBeingReplaced;
-
   let imgBeingDragged;
   let imgBeingReplaced;
+  let ibrAlt;
+  let ibdAlt;
 
   squares.forEach(square => square.addEventListener('dragstart', dragStart));
   squares.forEach(square => square.addEventListener('dragend', dragEnd));
@@ -77,11 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
   squares.forEach(square => square.addEventListener('dragleave', dragLeave));
   squares.forEach(square => square.addEventListener('drop', drop));
 
-  function dragStart(e) {
-    colorBeingDragged = this.style.backgroundColor;
-    imgBeingDragged = this.innerHTML;
+  function dragStart() {
+    imgBeingDragged = this.querySelector('.img-gumball').getAttribute('src');
+    ibdAlt = this.querySelector('.img-gumball').getAttribute('alt');
     squareIdBeingDragged = parseInt(this.id);
-    console.log(colorBeingDragged);
 
     console.log(this.id, 'dragstart');
   }
@@ -96,22 +91,24 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(this.id, 'dragenter');
   }
 
-  function dragLeave(e) {
-    colorBeingReplaced;
+  function dragLeave() {
     console.log(this.id, 'dragleave');
   }
 
   function drop(e) {
     e.preventDefault();
-    console.log(this.id, 'drop');
-    colorBeingReplaced = this.style.backgroundColor;
+
     squareIdBeingReplaced = parseInt(this.id);
-    imgBeingReplaced = this.innerHTML;
-    this.innerHTML = imgBeingDragged;
-    squares[squareIdBeingDragged].innerHTML = imgBeingReplaced;
-    this.style.backgroundColor = colorBeingDragged;
-    squares[squareIdBeingDragged].style.backgroundColor = colorBeingReplaced;
+    imgBeingReplaced = this.querySelector('.img-gumball').getAttribute('src');
+    ibrAlt = this.querySelector('.img-gumball').getAttribute('alt');
+    squares[
+      squareIdBeingDragged
+    ].innerHTML = `<img class="img-gumball" src="${imgBeingReplaced}" alt="${ibrAlt}" />`;
+    squares[
+      squareIdBeingReplaced
+    ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
     checkForMatch();
+    console.log(this.id, 'drop');
   }
 
   function dragEnd() {
@@ -126,19 +123,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let validMove = validMoves.includes(squareIdBeingReplaced);
 
-    if (squareIdBeingReplaced && validMove) {
-      console.log(0);
+    if (squares[squareIdBeingReplaced].querySelector('.img-gumball')) {
+      if ((squareIdBeingReplaced || imgBeingDragged) && validMove) {
+        console.log(0);
 
-      squareIdBeingReplaced = null;
-    } else if (squareIdBeingReplaced && !validMove) {
-      console.log(1);
+        squareIdBeingReplaced = null;
+        imgBeingDragged = null;
+      } else if ((squareIdBeingReplaced || imgBeingReplaced) && !validMove) {
+        console.log(1);
 
-      squares[squareIdBeingReplaced].style.backgroundColor = colorBeingReplaced;
-      squares[squareIdBeingDragged].style.backgroundColor = colorBeingDragged;
-    } else {
-      console.log(2);
+        squares[squareIdBeingReplaced]
+          .querySelector('.img-gumball')
+          .getAttribute() = imgBeingReplaced;
+        squares[squareIdBeingDragged]
+          .querySelector('.img-gumball')
+          .getAttribute() = imgBeingDragged;
+      } else {
+        console.log(2);
 
-      squares[squareIdBeingDragged].style.backgroundColor = colorBeingDragged;
+        squares[squareIdBeingDragged]
+          .querySelector('.img-gumball')
+          .getAttribute('src') = imgBeingDragged;
+      }
     }
   }
 
@@ -148,23 +154,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function checkForRowOfThree() {
+  function checkForRowOfThree(i) {
     for (i = 0; i < 61; i++) {
       let rowOfThree = [i, i + 1, i + 2];
-      let decidedColor = squares[i].style.backgroundColor;
-      const isBlank = squares[i].style.backgroundColor === '';
+
+      let decidedGumball = squares[i]
+        .querySelector('.img-gumball')
+        .getAttribute('alt');
+      const isBlank =
+        squares[i].querySelector('.img-gumball').getAttribute('alt') === '';
 
       if (!((rowOfThree[0] + 1) % 8 === 0 || (rowOfThree[1] + 1) % 8 === 0)) {
         if (
           rowOfThree.every(
             index =>
-              squares[index].style.backgroundColor === decidedColor && !isBlank
+              squares[index]
+                .querySelector('.img-gumball')
+                .getAttribute('alt') === decidedGumball && !isBlank
           )
         ) {
           score += 3;
           rowOfThree.forEach(index => {
-            squares[index].style.backgroundColor = '';
-            squares[index].innerHTML = '';
+            squares[index].innerHTML =
+              '<img src="" class="img-gumball" alt="" />';
           });
         }
       }
@@ -174,19 +186,23 @@ document.addEventListener('DOMContentLoaded', () => {
   function checkForColumnOfThree() {
     for (i = 8; i < 53; i++) {
       let columnOfThree = [i, i - 8, i + 8];
-      let decidedColor = squares[i].style.backgroundColor;
-      const isBlank = squares[i].style.backgroundColor === '';
+      let decidedGumball = squares[i]
+        .querySelector('.img-gumball')
+        .getAttribute('alt');
+      const isBlank =
+        squares[i].querySelector('.img-gumball').getAttribute('alt') === '';
 
       if (
         columnOfThree.every(
           index =>
-            squares[index].style.backgroundColor === decidedColor && !isBlank
+            squares[index].querySelector('.img-gumball').getAttribute('alt') ===
+              decidedGumball && !isBlank
         )
       ) {
         score += 3;
         columnOfThree.forEach(index => {
-          squares[index].style.backgroundColor = '';
-          squares[index].innerHTML = '';
+          squares[index].innerHTML =
+            '<img src="" class="img-gumball" alt="" />';
         });
       }
     }
@@ -195,8 +211,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function checkForRowOfFour() {
     for (i = 0; i < 60; i++) {
       let rowOfFour = [i, i + 1, i + 2, i + 3];
-      let decidedColor = squares[i].style.backgroundColor;
-      const isBlank = squares[i].style.backgroundColor === '';
+      let decidedGumball = squares[i]
+        .querySelector('.img-gumball')
+        .getAttribute('alt');
+      const isBlank =
+        squares[i].querySelector('.img-gumball').getAttribute('alt') === '';
 
       if (
         !(
@@ -208,13 +227,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (
           rowOfFour.every(
             index =>
-              squares[index].style.backgroundColor === decidedColor && !isBlank
+              squares[index]
+                .querySelector('.img-gumball')
+                .getAttribute('alt') === decidedGumball && !isBlank
           )
         ) {
           score += 3;
           rowOfFour.forEach(index => {
-            squares[index].style.backgroundColor = '';
-            squares[index].innerHTML = '';
+            squares[index];
+            squares[index].innerHTML =
+              '<img src="" class="img-gumball" alt="" />';
           });
         }
       }
@@ -224,19 +246,23 @@ document.addEventListener('DOMContentLoaded', () => {
   function checkForColumnOfFour() {
     for (i = 8; i < 43; i++) {
       let columnOfFour = [i, i - 8, i + 8, i + 16];
-      let decidedColor = squares[i].style.backgroundColor;
-      const isBlank = squares[i].style.backgroundColor === '';
+      let decidedGumball = squares[i]
+        .querySelector('.img-gumball')
+        .getAttribute('alt');
+      const isBlank =
+        squares[i].querySelector('.img-gumball').getAttribute('alt') === '';
 
       if (
         columnOfFour.every(
           index =>
-            squares[index].style.backgroundColor === decidedColor && !isBlank
+            squares[index].querySelector('.img-gumball').getAttribute('alt') ===
+              decidedGumball && !isBlank
         )
       ) {
         score += 3;
         columnOfFour.forEach(index => {
-          squares[index].style.backgroundColor = '';
-          squares[index].innerHTML = '';
+          squares[index].innerHTML =
+            '<img src="" class="img-gumball" alt="" />';
         });
       }
     }
