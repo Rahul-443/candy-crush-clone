@@ -61,6 +61,7 @@ nav div h1 {
   color: white;
   letter-spacing: 0.2rem;
   font-weight: bold;
+  cursor: pointer;
 }
 
 .links {
@@ -115,4 +116,13 @@ ul {
     height: 46px;
     width: 46px;
   }
+}
+
+.zany {
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.zany:hover {
+  color: mediumaquamarine;
 }
