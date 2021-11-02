@@ -39,10 +39,6 @@ main {
   box-sizing: border-box;
 }
 
-body {
-  /* background: pink; */
-}
-
 nav {
   height: 4rem;
   background: midnightblue;

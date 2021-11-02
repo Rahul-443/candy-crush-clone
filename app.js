@@ -108,11 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
       squareIdBeingReplaced
     ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
     checkForMatch();
-    console.log(this.id, 'drop');
-  }
-
-  function dragEnd() {
-    console.log(this.id, 'dragend');
 
     let validMoves = [
       squareIdBeingDragged - 1,
@@ -123,34 +118,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let validMove = validMoves.includes(squareIdBeingReplaced);
 
-    if (squares[squareIdBeingReplaced].querySelector('.img-gumball')) {
-      if ((squareIdBeingReplaced || imgBeingDragged) && validMove) {
-        console.log(0);
+    if ((squareIdBeingReplaced || imgBeingDragged) && validMove) {
+      console.log(0);
 
-        squareIdBeingReplaced = null;
-        imgBeingDragged = null;
-      } else if ((squareIdBeingReplaced || imgBeingReplaced) && !validMove) {
-        console.log(1);
+      squareIdBeingReplaced = null;
+      imgBeingDragged = null;
+    } else if ((squareIdBeingReplaced || imgBeingReplaced) && !validMove) {
+      console.log(1);
 
-        squares[squareIdBeingReplaced]
-          .querySelector('.img-gumball')
-          .getAttribute() = imgBeingReplaced;
-        squares[squareIdBeingDragged]
-          .querySelector('.img-gumball')
-          .getAttribute() = imgBeingDragged;
-      } else {
-        console.log(2);
+      squares[
+        squareIdBeingDragged
+      ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
+      squares[
+        squareIdBeingReplaced
+      ].innerHTML = `<img class="img-gumball" src="${imgBeingReplaced}" alt="${ibrAlt}" />`;
+    } else {
+      console.log(2);
 
-        squares[squareIdBeingDragged]
-          .querySelector('.img-gumball')
-          .getAttribute('src') = imgBeingDragged;
-      }
+      squares[
+        squareIdBeingDragged
+      ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
     }
+    console.log(this.id, 'drop');
+  }
+
+  function dragEnd() {
+    console.log(this.id, 'dragend');
   }
 
   function moveGbDown() {
     for (i = 0; i < 55; i++) {
-      if (squares[i + width].style);
+      if (
+        squares[i + width].querySelector('.img-gumball').getAttribute('src') ===
+        ''
+      ) {
+        squares[i + width].innerHTML = squares[i].innerHTML;
+        squares[i].innerHTML = '<img src="" class="img-gumball" alt="" />';
+        const firstRow = [0, 1, 2, 3, 4, 5, 6, 7];
+        const isFirstRow = firstRow.includes(i);
+        if (
+          isFirstRow &&
+          squares[i].querySelector('.img-gumball').getAttribute('src') === ''
+        ) {
+          var randImg = getRandImg();
+          squares[
+            i
+          ].innerHTML = `<img src="./imgs/${gumballs[randImg]}.png" class="img-gumball" alt="${gumballs[randImg]}" />`;
+        }
+      }
     }
   }
 
@@ -267,6 +282,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   }
+
+  window.setInterval(function() {
+    moveGbDown();
+    checkForRowOfFour();
+    checkForColumnOfFour();
+    checkForColumnOfThree();
+    checkForRowOfThree();
+  }, 100);
 
   function checkForMatch() {
     checkForRowOfFour();
