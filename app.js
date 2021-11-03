@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .getAttribute('alt') === decidedGumball && !isBlank
           )
         ) {
-          score += 3;
+          setScore(3);
           rowOfThree.forEach(index => {
             squares[index].innerHTML =
               '<img src="" class="img-gumball" alt="" />';
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
               decidedGumball && !isBlank
         )
       ) {
-        score += 3;
+        setScore(3);
         columnOfThree.forEach(index => {
           squares[index].innerHTML =
             '<img src="" class="img-gumball" alt="" />';
@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .getAttribute('alt') === decidedGumball && !isBlank
           )
         ) {
-          score += 3;
+          setScore(4);
           rowOfFour.forEach(index => {
             squares[index];
             squares[index].innerHTML =
@@ -274,13 +274,19 @@ document.addEventListener('DOMContentLoaded', () => {
               decidedGumball && !isBlank
         )
       ) {
-        score += 3;
+        setScore(4);
         columnOfFour.forEach(index => {
           squares[index].innerHTML =
             '<img src="" class="img-gumball" alt="" />';
         });
       }
     }
+  }
+
+  function setScore(i) {
+    score += i;
+    const scoreBar = document.getElementById('score');
+    scoreBar.textContent = score;
   }
 
   window.setInterval(function() {
