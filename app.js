@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const width = 8;
   const squares = [];
   let score = 0;
+  let movesLeft = 30;
 
   const gumballs = ['bop', 'bud', 'chum', 'clunk', 'dapp', 'eke'];
 
@@ -139,6 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
         squareIdBeingDragged
       ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
     }
+
+    movesLeft -= 1;
+    movesLeft > 0
+      ? (document.getElementById('moves-left').textContent = movesLeft)
+      : alert('Game Over!!');
     console.log(this.id, 'drop');
   }
 

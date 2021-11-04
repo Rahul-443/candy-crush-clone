@@ -27,6 +27,7 @@ main {
 .info {
   display: flex;
   width: 100%;
+  max-width: 600px;
   justify-content: space-between;
   font-size: 1rem;
   color: coral;
@@ -41,6 +42,7 @@ main {
 .grid {
   height: 400px;
   width: 400px;
+  min-width: 400px;
   display: flex;
   flex-wrap: wrap;
   background-color: transparent;
@@ -63,20 +65,17 @@ main {
 nav {
   height: 4rem;
   background: midnightblue;
-  box-shadow: 0px 4px 7px -2px #222;
-}
-
-nav div {
+  box-shadow: 0px 4px 5px -2px mediumslateblue;
+  border-bottom-left-radius: 0.2rem;
+  border-bottom-right-radius: 0.2rem;
   display: flex;
-  padding: 0 1rem;
-  width: 100vw;
+  padding: 0 0.5rem;
   max-width: 600px;
-  height: 100%;
   justify-content: space-between;
   margin: 0 auto;
 }
 
-nav div h1 {
+nav h1 {
   display: flex;
   align-items: center;
   color: white;
@@ -112,7 +111,7 @@ ul {
   align-items: center;
 }
 
-@media screen and (min-width: 600px) {
+@media screen and (min-width: 800px) {
   main {
     display: flex;
     justify-content: space-between;
@@ -122,13 +121,15 @@ ul {
   .info {
     display: block;
     width: 20vw;
-    height: 50vh;
+    min-width: 200px;
+    height: 40vh;
     font-size: 1.5rem;
   }
 
   .grid {
     height: 560px;
     width: 560px;
+    min-width: 560px;
     margin: 2rem;
   }
 
@@ -138,23 +139,18 @@ ul {
   }
 }
 
-/*
-@media screen and (max-width: 676px) {
+@media screen and (min-width: 600px) {
   .grid {
-    height: 400px;
-    width: 400px;
+    height: 480px;
+    width: 480px;
+    min-width: 480px;
   }
 
   .grid div {
-    height: 46px;
-    width: 46px;
+    height: 56px;
+    width: 56px;
   }
-
-  .main {
-    display: grid;
-    place-items: center;
-  }
-} */
+}
 
 .zany {
   transition: all 0.3s ease-in-out;
