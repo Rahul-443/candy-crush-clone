@@ -19,24 +19,37 @@ body {
 
 main {
   display: grid;
-  height: calc(100vh - 4rem);
+  height: calc(100vh - 4.5rem);
   padding: 1rem;
+  margin-top: 0.5rem;
   place-items: center;
 }
 
-.info {
+.section-center {
+  display: grid;
+  place-items: center;
+  gap: 3rem;
+}
+
+.left {
   display: flex;
+  justify-content: space-between;
   width: 100%;
   max-width: 600px;
-  justify-content: space-between;
+}
+
+.info {
+  display: grid;
+  width: 100%;
   font-size: 1rem;
-  color: coral;
   text-transform: capitalize;
-  background-color: rgba(25, 25, 112, 0.8);
-  border: royalblue solid 0.1rem;
+  background-color: rgba(255, 105, 180, 0.1);
+  border: hotpink solid 0.1rem;
+  color: pink;
   border-radius: 0.5rem;
   padding: 1rem;
-  box-shadow: 0px 2px 4px -4px rgba(255, 255, 255, 0.1);
+  margin: 1rem;
+  box-shadow: 0px 2px 7px -4px whitesmoke;
 }
 
 .grid {
@@ -112,25 +125,30 @@ ul {
 }
 
 @media screen and (min-width: 800px) {
-  main {
+  .section-center {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: flex-start;
     padding: 5rem;
+    margin-top: 0;
+  }
+
+  .left {
+    display: grid;
+    gap: 0.5rem;
+    margin-right: 4rem;
   }
 
   .info {
     display: block;
-    width: 20vw;
-    min-width: 200px;
-    height: 40vh;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
 
   .grid {
     height: 560px;
     width: 560px;
     min-width: 560px;
-    margin: 2rem;
+    margin: 0 2rem;
   }
 
   .grid div {
@@ -140,6 +158,11 @@ ul {
 }
 
 @media screen and (min-width: 600px) {
+  .section-center {
+    margin-top: 0.5rem;
+    gap: 0.5rem;
+  }
+
   .grid {
     height: 480px;
     width: 480px;
