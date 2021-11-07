@@ -11,31 +11,52 @@
     <link href="https://fonts.googleapis.com/css2?family=Exo&display=swap" rel="stylesheet"> 
   </head>
   <body>
-    <nav>
-      <h1><span class="zany">Zany</span>&nbspGumballs</h3>
-      <ul class="links">
-        <li><a href="index.html" class="link">Home</a></li>
-        <li><a href="shop.html" class="link">Shop</a></li>
-      </ul>
-    </nav>
-    <main>
-      <section class="section-center">        
-        <section class="left">
-          <div class="info">
-            <h3>daily chances left - <span id="chances-left">5</span></h3>
-          </div>
-          <div class="info">
-            <h3>
-              score - <span id="score">0</span>
-            </h3>
-            <h3>
-              moves left - <span id="moves-left">30</span>
-            </h3>
-          </div>
+    <section id="game">
+      <nav>
+        <h1><span class="zany">Zany</span>&nbspGumballs</h3>
+        <ul class="links">
+          <li><a href="index.html" class="link">Home</a></li>
+          <li><a href="shop.html" class="link">Shop</a></li>
+        </ul>
+      </nav>
+      <main>
+        <section class="section-center">        
+          <section class="left">
+            <div class="info">
+              <h3>daily chances left - <span id="chances-left">5</span></h3>
+              <div id="chance-bar">
+                <div class="ch"></div>
+                <div class="ch"></div>
+                <div class="ch"></div>
+                <div class="ch"></div>
+                <div class="ch"></div>
+              </div>
+            </div>
+            <div class="info">
+              <h3>
+                score - <span id="score">0</span>
+              </h3>
+              <h3>
+                moves left - <span id="moves-left">30</span>
+              </h3>
+              <div id="zany-bar">
+                <div id="progress-back">
+                  <div id="progress-front">
+                  </div>
+                </div>
+                <button id="claim-zany">
+                  claim
+                </button>
+              </div>
+            </div>
+          </section>
+          <div class="grid"></div>
         </section>
-        <div class="grid"></div>
+      </main>
+      <section id="interval">
+        <p>4 chances left <br> <span id="timer">5</span></p>
       </section>
-    </main>
+    </section>
     <script src="./app.js"></script>
   </body>
 </html>

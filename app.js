@@ -4,6 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const squares = [];
   let score = 0;
   let movesLeft = 30;
+  let chancesLeft = 5;
+
+  const chanceBar = document.getElementById('chance-bar');
+  const cbLights = chanceBar.getElementsByClassName('ch');
+  let cbLen = cbLights.length;
 
   const gumballs = ['bop', 'bud', 'chum', 'clunk', 'dapp', 'eke'];
 
@@ -142,10 +147,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     movesLeft -= 1;
-    movesLeft > 0
-      ? (document.getElementById('moves-left').textContent = movesLeft)
-      : alert('Game Over!!');
+    const movesLeftText = document.getElementById('moves-left');
+    if (movesLeft >= 0) {
+      movesLeftText.textContent = movesLeft.toString();
+    } else {
+      chancesLeft -= 1;
+      if (chancesLeft > 0) {
+        let gameResTime = 5;
+        const chancesLeftText = document.getElementById('chances-left');
+        const interval = document.getElementById('interval');
+        chancesLeftText.textContent = chancesLeft.toString();
+        cbLights[cbLen - 1].style.display = 'none';
+        cbLen--;
+        interval.style.display = 'grid';
+        let gameResTimer = window.setInterval(() => {
+          if (gameResTime > 0) {
+            const timer = document.getElementById('timer');
+            gameResTime--;
+            timer.textContent = gameResTime.toString();
+          } else {
+            interval.style.display = 'none';
+            movesLeft = 30;
+            movesLeftText.textContent = movesLeft.toString();
+            clearInterval(gameResTimer);
+          }
+        }, 1000);
+      } else {
+        alert('game over');
+        location.reload();
+      }
+    }
     console.log(this.id, 'drop');
+    // TODO: Bug - if gb can fit in pattern it gets dropped;
   }
 
   function dragEnd() {
@@ -292,6 +325,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function setScore(i) {
     score += i;
     const scoreBar = document.getElementById('score');
+    const zanyBar = document.getElementById('progress-front');
+    let width = score * 0.02;
+    zanyBar.style.width = width + 'rem';
     scoreBar.textContent = score;
   }
 
