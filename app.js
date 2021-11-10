@@ -122,14 +122,53 @@ document.addEventListener('DOMContentLoaded', () => {
       squareIdBeingDragged + width
     ];
 
+    let invalidMove = false;
+    let invalidSquareId;
+
+    if (
+      squareIdBeingDragged === squareIdBeingReplaced - 1 ||
+      squareIdBeingDragged === squareIdBeingReplaced + 1
+    ) {
+      if (
+        squareIdBeingDragged % 8 === 0 &&
+        squareIdBeingReplaced < squareIdBeingDragged
+      ) {
+        invalidSquareId = squareIdBeingDragged;
+      } else if (
+        squareIdBeingReplaced % 8 === 0 &&
+        squareIdBeingDragged < squareIdBeingReplaced
+      ) {
+        invalidSquareId = squareIdBeingReplaced;
+      }
+    }
+
+    if (invalidSquareId) {
+      if (
+        (squareIdBeingDragged === 0 || squareIdBeingReplaced === 0) &&
+        (squareIdBeingDragged === squareIdBeingReplaced - 1 ||
+          squareIdBeingDragged === squareIdBeingReplaced + 1)
+      ) {
+        invalidMove = false;
+      } else {
+        invalidMove = true;
+      }
+    }
+
     let validMove = validMoves.includes(squareIdBeingReplaced);
 
-    if ((squareIdBeingReplaced || imgBeingDragged) && validMove) {
+    if (
+      (squareIdBeingReplaced || imgBeingDragged) &&
+      validMove &&
+      !invalidMove
+    ) {
       console.log(0);
 
       squareIdBeingReplaced = null;
       imgBeingDragged = null;
-    } else if ((squareIdBeingReplaced || imgBeingReplaced) && !validMove) {
+    } else if (
+      (squareIdBeingReplaced || imgBeingReplaced) &&
+      (!validMove || invalidMove)
+    ) {
       console.log(1);
 
       squares[
@@ -154,15 +193,21 @@ document.addEventListener('DOMContentLoaded', () => {
       chancesLeft -= 1;
       if (chancesLeft > 0) {
         let gameResTime = 5;
-        const chancesLeftText = document.getElementById('chances-left');
+        const chancesLeftTexts = document.getElementsByClassName(
+          'chances-left'
+        );
         const interval = document.getElementById('interval');
-        chancesLeftText.textContent = chancesLeft.toString();
+        console.log(chancesLeftTexts);
+        [...chancesLeftTexts].forEach(element => {
+          element.textContent = chancesLeft.toString();
+        });
         cbLights[cbLen - 1].style.display = 'none';
         cbLen--;
         interval.style.display = 'grid';
+        const timer = document.getElementById('timer');
+        timer.textContent = gameResTime;
         let gameResTimer = window.setInterval(() => {
           if (gameResTime > 0) {
-            const timer = document.getElementById('timer');
             gameResTime--;
             timer.textContent = gameResTime.toString();
           } else {
