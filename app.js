@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let movesLeft = 30;
   let chancesLeft = 5;
 
+  const scoreBar = document.getElementById('score');
+  const zanyBar = document.getElementById('progress-front');
+
   const chanceBar = document.getElementById('chance-bar');
   const cbLights = chanceBar.getElementsByClassName('ch');
   let cbLen = cbLights.length;
@@ -107,13 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
     squareIdBeingReplaced = parseInt(this.id);
     imgBeingReplaced = this.querySelector('.img-gumball').getAttribute('src');
     ibrAlt = this.querySelector('.img-gumball').getAttribute('alt');
-    squares[
-      squareIdBeingDragged
-    ].innerHTML = `<img class="img-gumball" src="${imgBeingReplaced}" alt="${ibrAlt}" />`;
-    squares[
-      squareIdBeingReplaced
-    ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
-    checkForMatch();
 
     let validMoves = [
       squareIdBeingDragged - 1,
@@ -162,6 +158,14 @@ document.addEventListener('DOMContentLoaded', () => {
       !invalidMove
     ) {
       console.log(0);
+
+      squares[
+        squareIdBeingDragged
+      ].innerHTML = `<img class="img-gumball" src="${imgBeingReplaced}" alt="${ibrAlt}" />`;
+      squares[
+        squareIdBeingReplaced
+      ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
+      checkForMatch();
 
       squareIdBeingReplaced = null;
       imgBeingDragged = null;
@@ -213,6 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
           } else {
             interval.style.display = 'none';
             movesLeft = 30;
+            resetScore();
             movesLeftText.textContent = movesLeft.toString();
             clearInterval(gameResTimer);
           }
@@ -234,15 +239,18 @@ document.addEventListener('DOMContentLoaded', () => {
     for (i = 0; i < 55; i++) {
       if (
         squares[i + width].querySelector('.img-gumball').getAttribute('src') ===
-        ''
+        './imgs/transparent.png'
       ) {
         squares[i + width].innerHTML = squares[i].innerHTML;
-        squares[i].innerHTML = '<img src="" class="img-gumball" alt="" />';
+        squares[
+          i
+        ].innerHTML = `<img src="./imgs/transparent.png" class="img-gumball" alt="" />`;
         const firstRow = [0, 1, 2, 3, 4, 5, 6, 7];
         const isFirstRow = firstRow.includes(i);
         if (
           isFirstRow &&
-          squares[i].querySelector('.img-gumball').getAttribute('src') === ''
+          squares[i].querySelector('.img-gumball').getAttribute('src') ===
+            './imgs/transparent.png'
         ) {
           var randImg = getRandImg();
           squares[
@@ -275,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
           setScore(3);
           rowOfThree.forEach(index => {
             squares[index].innerHTML =
-              '<img src="" class="img-gumball" alt="" />';
+              '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
           });
         }
       }
@@ -301,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setScore(3);
         columnOfThree.forEach(index => {
           squares[index].innerHTML =
-            '<img src="" class="img-gumball" alt="" />';
+            '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
         });
       }
     }
@@ -335,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
           rowOfFour.forEach(index => {
             squares[index];
             squares[index].innerHTML =
-              '<img src="" class="img-gumball" alt="" />';
+              '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
           });
         }
       }
@@ -361,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setScore(4);
         columnOfFour.forEach(index => {
           squares[index].innerHTML =
-            '<img src="" class="img-gumball" alt="" />';
+            '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
         });
       }
     }
@@ -369,11 +377,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setScore(i) {
     score += i;
-    const scoreBar = document.getElementById('score');
-    const zanyBar = document.getElementById('progress-front');
-    let width = score * 0.02;
+    let width = score * 0.06;
     zanyBar.style.width = width + 'rem';
     scoreBar.textContent = score;
+  }
+
+  function resetScore() {
+    score = 0;
+    zanyBar.style.width = 0 + 'rem';
+    scoreBar.textContent = 0;
   }
 
   window.setInterval(function() {
