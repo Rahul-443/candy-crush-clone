@@ -236,22 +236,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function moveGbDown() {
-    for (i = 0; i < 55; i++) {
+    for (i = 0; i <= 63; i++) {
       if (
-        squares[i + width].querySelector('.img-gumball').getAttribute('src') ===
+        squares[i].querySelector('.img-gumball').getAttribute('src') ===
         './imgs/transparent.png'
       ) {
-        squares[i + width].innerHTML = squares[i].innerHTML;
-        squares[
-          i
-        ].innerHTML = `<img src="./imgs/transparent.png" class="img-gumball" alt="" />`;
-        const firstRow = [0, 1, 2, 3, 4, 5, 6, 7];
-        const isFirstRow = firstRow.includes(i);
-        if (
-          isFirstRow &&
-          squares[i].querySelector('.img-gumball').getAttribute('src') ===
-            './imgs/transparent.png'
-        ) {
+        if (i >= 8) {
+          squares[i].innerHTML = squares[i - width].innerHTML;
+          squares[
+            i - width
+          ].innerHTML = `<img src="./imgs/transparent.png" class="img-gumball" alt="" />`;
+        } else if (i <= 7) {
           var randImg = getRandImg();
           squares[
             i
@@ -262,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function checkForRowOfThree(i) {
-    for (i = 0; i < 61; i++) {
+    for (i = 0; i <= 61; i++) {
       let rowOfThree = [i, i + 1, i + 2];
 
       let decidedGumball = squares[i]
@@ -291,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function checkForColumnOfThree() {
-    for (i = 8; i < 53; i++) {
+    for (i = 8; i <= 55; i++) {
       let columnOfThree = [i, i - 8, i + 8];
       let decidedGumball = squares[i]
         .querySelector('.img-gumball')
@@ -316,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function checkForRowOfFour() {
-    for (i = 0; i < 60; i++) {
+    for (i = 0; i <= 60; i++) {
       let rowOfFour = [i, i + 1, i + 2, i + 3];
       let decidedGumball = squares[i]
         .querySelector('.img-gumball')
@@ -351,7 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function checkForColumnOfFour() {
-    for (i = 8; i < 43; i++) {
+    for (i = 8; i <= 47; i++) {
       let columnOfFour = [i, i - 8, i + 8, i + 16];
       let decidedGumball = squares[i]
         .querySelector('.img-gumball')

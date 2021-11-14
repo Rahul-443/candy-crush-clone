@@ -6,34 +6,77 @@
   box-sizing: border-box;
 }
 
-/* fonts import */
-@import url('https://fonts.googleapis.com/css2?family=Exo&display=swap');
-
 html {
   font-size: 100%;
 }
 
 :root {
+  /* colors */
+  --text-color: aliceblue;
+  --color-theme-1: #332a99;
+  --color-shadow-1: #7c73d9;
+
+  --m-aqua: #2dca86;
+  --m-aqua-H: #29b87b;
+
+  --m-aqua-A2: rgba(60, 212, 147, 0.2);
+
+  --bar-back: #a5ebcd;
+  --bar-front: #2dca86;
+
+  /* fonts */
+  --font-size-08: 0.8rem;
+  --font-size-1: 1rem;
+  --font-size-2: 2rem;
+  --font-size-3: 10rem;
+
+  /* border */
+  --border-radius-05: 0.2rem;
+  --border-radius-1: 0.5rem;
+  --border-radius-2: 0.6rem;
+  --border-radius-3: 1rem;
+
   /* transition */
-  --transition: all 0.3s ease-in-out;
+  --transition: all 0.3s linear;
+
+  /* shadows */
+  --shadow-white-1: -2px 4px 6px 2px rgba(255, 255, 255, 0.1);
+  --shadow-blue-1: 0px 4px 5px -2px var(--color-shadow-1);
+  --shadow-aqua-1: 0px 0px 5px 2px aqua;
 }
 
 body {
-  background: url('./imgs/2352.jpg');
+  background: url('./imgs/space.jpg');
   background-size: cover;
   background-position: center;
   font-size: 100%;
   font-family: 'Exo', sans-serif;
+  color: var(--text-color);
+}
+
+.button {
+  padding: 0.4rem 1rem;
+  background-color: var(--m-aqua);
+  border-radius: var(--border-radius-1);
+  margin-left: 1rem;
+  color: var(--text-color);
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.button:hover {
+  background-color: var(--m-aqua-H);
 }
 
 #game {
   position: relative;
+  display: grid;
+  place-items: center;
 }
 
 main {
   display: grid;
   height: calc(100vh - 4.5rem);
-  padding: 1rem;
   margin-top: 0.5rem;
   place-items: center;
 }
@@ -41,7 +84,7 @@ main {
 .section-center {
   display: grid;
   place-items: center;
-  gap: 3rem;
+  gap: 1rem;
 }
 
 #interval {
@@ -51,11 +94,10 @@ main {
   width: 100vw;
   display: none;
   place-items: center;
-  color: antiquewhite;
   gap: 2rem;
   background-color: rgba(128, 128, 128, 0.5);
   text-align: center;
-  font-size: 2rem;
+  font-size: var(--font-size-2);
 }
 
 #timer {
@@ -63,31 +105,24 @@ main {
 }
 
 .left {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
   max-width: 600px;
 }
 
 .info {
   display: grid;
   gap: 0.2rem;
-  width: 100%;
-  font-size: 1rem;
+  font-size: var(--font-size-1);
+  color: var(--text-color);
   text-transform: capitalize;
-  background-color: rgba(255, 105, 180, 0.2);
-  border: hotpink solid 0.1rem;
-  color: aliceblue;
-  border-radius: 0.5rem;
+  background-color: var(--m-aqua-A2);
+  border-radius: var(--border-radius-1);
   padding: 1rem;
-  margin: 1rem;
-  box-shadow: 0px 2px 7px -4px whitesmoke;
+  margin: 1rem 0;
 }
 
 .grid {
-  height: 400px;
-  width: 400px;
-  min-width: 400px;
+  height: 320px;
+  width: 320px;
   display: flex;
   flex-wrap: wrap;
   background-color: transparent;
@@ -95,11 +130,11 @@ main {
 }
 
 .grid div {
-  height: 46px;
-  width: 46px;
-  border-radius: 10px;
+  height: 36px;
+  width: 36px;
+  border-radius: var(--border-radius-2);
   margin: 2px;
-  box-shadow: -2px 4px 6px 2px rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-white-1);
 }
 
 .img-gumball {
@@ -109,10 +144,10 @@ main {
 
 nav {
   height: 4rem;
-  background: midnightblue;
-  box-shadow: 0px 4px 5px -2px mediumslateblue;
-  border-bottom-left-radius: 0.2rem;
-  border-bottom-right-radius: 0.2rem;
+  background: var(--color-theme-1);
+  box-shadow: var(--shadow-blue-1);
+  border-bottom-left-radius: var(--border-radius-05);
+  border-bottom-right-radius: var(--border-radius-05);
   display: flex;
   padding: 0 0.5rem;
   max-width: 600px;
@@ -123,7 +158,6 @@ nav {
 nav h1 {
   display: flex;
   align-items: center;
-  color: white;
   letter-spacing: 0.2rem;
   font-weight: bold;
   cursor: pointer;
@@ -142,13 +176,13 @@ nav h1 {
   transition: all 0.3s linear;
 }
 
-.ch {
+.chnc {
   height: 0.5rem;
   width: 0.5rem;
   margin-right: 0.5rem;
   border-radius: 1rem;
   background-color: aquamarine;
-  box-shadow: 0px 0px 5px 2px aqua;
+  box-shadow: var(--shadow-aqua-1);
   border: 0.5px solid aqua;
   display: inline-block;
   transition: var(--transition);
@@ -163,8 +197,8 @@ nav h1 {
 #progress-back {
   height: 0.5rem;
   width: 6rem;
-  border-radius: 1rem;
-  background-color: pink;
+  border-radius: var(--border-radius-3);
+  background-color: var(--bar-back);
   display: relative;
   margin-right: 1rem;
 }
@@ -172,31 +206,24 @@ nav h1 {
 #progress-front {
   height: 0.5rem;
   width: 0rem;
-  background-color: hotpink;
-  border-radius: 1rem;
+  background-color: var(--bar-front);
+  border-radius: var(--border-radius-3);
   display: absolute;
 }
 
 #claim-zany {
-  background-color: hotpink;
-  color: aliceblue;
   border: none;
   padding: 0.4rem;
-  border-radius: 1rem;
   text-transform: capitalize;
   letter-spacing: 0.05rem;
   font-family: 'Exo', sans-serif;
   transition: var(--transition);
-  font-size: 16px;
+  font-size: var(--font-size-1);
   margin-left: 0.5rem;
 }
 
-#claim-zany:hover {
-  box-shadow: 0px 0px 7px 0px hotpink;
-}
-
 .link:hover {
-  color: aquamarine;
+  color: var(--m-aqua);
 }
 
 a {
@@ -241,7 +268,7 @@ ul {
     width: 66px;
   }
 
-  .ch {
+  .chnc {
     width: 3rem;
   }
 }
@@ -265,10 +292,10 @@ ul {
 }
 
 .zany {
-  transition: all 0.3s ease-in-out;
+  transition: var(--transition);
   cursor: pointer;
 }
 
 .zany:hover {
-  color: aquamarine;
+  color: var(--m-aqua);
 }
