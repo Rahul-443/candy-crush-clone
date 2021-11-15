@@ -1,0 +1,29 @@
+{
+  "name": "zanygumballs",
+  "version": "1.0.0",
+  "description": "a candy crush game implemented with wax blockchain",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src -d dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rahul-443/candy-crush-clone.git"
+  },
+  "keywords": [
+    "candy",
+    "crush",
+    "game"
+  ],
+  "author": "rahul gautam",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Rahul-443/candy-crush-clone/issues"
+  },
+  "homepage": "https://github.com/Rahul-443/candy-crush-clone#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-latest": "^6.24.1"
+  }
+}

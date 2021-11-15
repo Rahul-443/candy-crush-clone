@@ -1,3 +1,5 @@
+import * as waxjs from './scripts';
+
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.querySelector('.grid');
   const width = 8;
@@ -10,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const zanyBar = document.getElementById('progress-front');
 
   const chanceBar = document.getElementById('chance-bar');
-  const cbLights = chanceBar.getElementsByClassName('ch');
+  const cbLights = chanceBar.getElementsByClassName('chnc');
   let cbLen = cbLights.length;
 
   const gumballs = ['bop', 'bud', 'chum', 'clunk', 'dapp', 'eke'];
