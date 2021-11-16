@@ -1,4 +1,5 @@
-import * as waxjs from './scripts';
+import * as waxjs from '.';
+import './styles.css';
 
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.querySelector('.grid');
@@ -238,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function moveGbDown() {
-    for (i = 0; i <= 63; i++) {
+    for (let i = 0; i <= 63; i++) {
       if (
         squares[i].querySelector('.img-gumball').getAttribute('src') ===
         './imgs/transparent.png'
@@ -259,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function checkForRowOfThree(i) {
-    for (i = 0; i <= 61; i++) {
+    for (let i = 0; i <= 61; i++) {
       let rowOfThree = [i, i + 1, i + 2];
 
       let decidedGumball = squares[i]
@@ -288,7 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function checkForColumnOfThree() {
-    for (i = 8; i <= 55; i++) {
+    for (let i = 8; i <= 55; i++) {
       let columnOfThree = [i, i - 8, i + 8];
       let decidedGumball = squares[i]
         .querySelector('.img-gumball')
@@ -313,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function checkForRowOfFour() {
-    for (i = 0; i <= 60; i++) {
+    for (let i = 0; i <= 60; i++) {
       let rowOfFour = [i, i + 1, i + 2, i + 3];
       let decidedGumball = squares[i]
         .querySelector('.img-gumball')
@@ -348,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function checkForColumnOfFour() {
-    for (i = 8; i <= 47; i++) {
+    for (let i = 8; i <= 47; i++) {
       let columnOfFour = [i, i - 8, i + 8, i + 16];
       let decidedGumball = squares[i]
         .querySelector('.img-gumball')
