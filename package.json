@@ -1,7 +1,7 @@
 {
   "name": "zany-gumballs",
   "version": "1.0.0",
-  "description": "candy crush implementation with NFTs on WAX blockchain",
+  "description": "candy crush type game",
   "private": true,
   "scripts": {
     "build": "webpack --mode=production --node-env=production",
@@ -29,7 +29,7 @@
   "homepage": "https://github.com/Rahul-443/candy-crush-clone#readme",
   "devDependencies": {
     "@babel/core": "^7.16.0",
-    "@babel/preset-env": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
     "@webpack-cli/generators": "^2.4.1",
     "babel-loader": "^8.2.3",
     "css-loader": "^6.5.1",
@@ -37,9 +37,12 @@
     "style-loader": "^3.3.1",
     "webpack": "^5.64.1",
     "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.5.0",
     "workbox-webpack-plugin": "^6.4.1"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "@waxio/waxjs": "^1.0.4",
+    "express": "^4.17.1",
+    "regenerator-runtime": "^0.13.9"
   }
 }

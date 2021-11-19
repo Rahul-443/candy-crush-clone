@@ -1,5 +1,5 @@
-import * as waxjs from '.';
-import './styles.css';
+import * as waxjs from '@waxio/waxjs/dist';
+import 'regenerator-runtime/runtime';
 
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.querySelector('.grid');
@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const chanceBar = document.getElementById('chance-bar');
   const cbLights = chanceBar.getElementsByClassName('chnc');
   let cbLen = cbLights.length;
+
+  const loginBtn = document.getElementById('login');
 
   const gumballs = ['bop', 'bud', 'chum', 'clunk', 'dapp', 'eke'];
 
@@ -400,4 +402,19 @@ document.addEventListener('DOMContentLoaded', () => {
     checkForColumnOfThree();
     checkForRowOfThree();
   }
+
+  const wax = new waxjs.WaxJS({
+    rpcEndpoint: 'https://wax.greymass.com'
+  });
+
+  async function login() {
+    try {
+      const userAccount = await wax.login();
+      loginBtn.textContent = wax.userAccount;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  loginBtn.addEventListener('click', login);
 });
