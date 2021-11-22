@@ -1,27 +1,21 @@
 {
   "name": "zany-gumballs",
   "version": "1.0.0",
-  "description": "candy crush type game",
-  "private": true,
+  "description": "Candy Crush type game",
+  "main": "server.js",
   "scripts": {
-    "build": "webpack --mode=production --node-env=production",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "build": "webpack --mode=production --node-env=production",
     "build:dev": "webpack --mode=development",
     "build:prod": "webpack --mode=production --node-env=production",
-    "watch": "webpack --watch",
-    "serve": "webpack serve",
-    "start": "node server.js"
+    "watch": "webpack --watch"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Rahul-443/candy-crush-clone.git"
   },
-  "keywords": [
-    "candy",
-    "crush",
-    "game"
-  ],
-  "author": "rahul gautam",
+  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Rahul-443/candy-crush-clone/issues"
@@ -30,19 +24,16 @@
   "devDependencies": {
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.16.4",
-    "@webpack-cli/generators": "^2.4.1",
     "babel-loader": "^8.2.3",
     "css-loader": "^6.5.1",
-    "html-webpack-plugin": "^5.5.0",
     "style-loader": "^3.3.1",
-    "webpack": "^5.64.1",
+    "webpack": "^5.64.2",
     "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.5.0",
     "workbox-webpack-plugin": "^6.4.1"
   },
   "dependencies": {
     "@waxio/waxjs": "^1.0.4",
-    "express": "^4.17.1",
+    "atomicassets": "^1.4.2",
     "regenerator-runtime": "^0.13.9"
   }
 }

@@ -1,5 +1,6 @@
 import * as waxjs from '@waxio/waxjs/dist';
 import 'regenerator-runtime/runtime';
+import { ExplorerApi, RpcApi } from 'atomicassets';
 
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.querySelector('.grid');
@@ -8,20 +9,177 @@ document.addEventListener('DOMContentLoaded', () => {
   let score = 0;
   let movesLeft = 30;
   let chancesLeft = 5;
+  const stickerTemplates = [
+    '330504',
+    '330501',
+    '330495',
+    '330490',
+    '330487',
+    '295563',
+    '295562',
+    '295561',
+    '295560',
+    '295559',
+    '295558',
+    '295557',
+    '254475',
+    '234211',
+    '119963',
+    '119799',
+    '112103',
+    '112098',
+    '112093',
+    '112091',
+    '112090',
+    '112089',
+    '112083',
+    '112076',
+    '110470',
+    '110469',
+    '110468',
+    '110467',
+    '110463',
+    '110456',
+    '110454',
+    '110449',
+    '110444',
+    '110419',
+    '110416',
+    '110413',
+    '110410',
+    '110406',
+    '110405',
+    '110404',
+    '110401',
+    '110395',
+    '110391',
+    '110389',
+    '110385',
+    '110384',
+    '110381',
+    '110379'
+  ];
+  const StickerNames = [
+    'Clunk B/W Sticker',
+    'Me B/W Sticker',
+    'Link B/W Sticker',
+    'Chum B/W Sticker',
+    'Nan B/W Sticker',
+    'Zim Sticker',
+    'Rye Sticker',
+    'Rafe Sticker',
+    'Kay Sticker',
+    'Ice Sticker',
+    'Bae Sticker',
+    'Abe Sticker',
+    'Bop “Saves the Galaxy” Sticker',
+    'Mooch “The Ultimate Gamer” Sticker',
+    'Dave Holographic Reward Sticker',
+    'Two Sides of Eke Reward Sticker',
+    'Pi Sticker',
+    'Pam Sticker',
+    'Kipp Sticker',
+    'Grey Sticker',
+    'Jill Sticker',
+    'Holt Sticker',
+    'Fuse Sticker',
+    'Elle Sticker',
+    'Yam Sticker',
+    'Trish Sticker',
+    'Stan Sticker',
+    'Sis Sticker',
+    'Shar Sticker',
+    'Sauce Sticker',
+    'Rush Sticker',
+    'Roy Sticker',
+    'Prim Sticker',
+    'Nan Sticker',
+    'Mooch Sticker',
+    'Mike Sticker',
+    'Me Sticker',
+    'Link Sticker',
+    'Kells Sticker',
+    'Jet Sticker',
+    'Hue Sticker',
+    'Faith Sticker',
+    'Eke Sticker',
+    'Dapp Sticker',
+    'Clunk Sticker',
+    'Chum Sticker',
+    'Bud Sticker',
+    'Bop Sticker'
+  ];
 
   const scoreBar = document.getElementById('score');
   const zanyBar = document.getElementById('progress-front');
 
+  const sectionLogin = document.getElementById('section-login');
   const chanceBar = document.getElementById('chance-bar');
   const cbLights = chanceBar.getElementsByClassName('chnc');
   let cbLen = cbLights.length;
 
+  const loginResult = document.getElementById('login-result');
   const loginBtn = document.getElementById('login');
+  const enterBtn = document.getElementById('enter');
 
   const gumballs = ['bop', 'bud', 'chum', 'clunk', 'dapp', 'eke'];
 
   let randomImg = getRandImg();
   let lastImg = gumballs[randomImg];
+
+  const wax = new waxjs.WaxJS({
+    rpcEndpoint: 'https://wax.greymass.com'
+  });
+
+  async function login() {
+    try {
+      const userAccount = await wax.login();
+      enterBtn.textContent = wax.userAccount;
+      getGumballs();
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  enterBtn.addEventListener('click', login);
+
+  const api = new ExplorerApi(
+    'https://wax.api.atomicassets.io',
+    'atomicassets',
+    { fetch }
+  );
+
+  const collection_name = 'zanygumballs';
+
+  async function getGumballs() {
+    try {
+      const gumballs = await api.getAccountCollection(
+        wax.userAccount,
+        collection_name
+      );
+      const templatesArray = gumballs['templates'];
+      let templatedIdArray = [];
+      templatesArray.forEach(template => {
+        templatedIdArray.push(template['template_id']);
+      });
+      let userStickerTemplateIds = [];
+      templatedIdArray.forEach(templateId => {
+        if (stickerTemplates.includes(templateId)) {
+          userStickerTemplateIds.push(templateId);
+        }
+      });
+      if (userStickerTemplateIds.length >= 6) {
+        sectionLogin.style.display = 'none';
+        loginBtn.textContent = wax.userAccount;
+      } else {
+        loginResult.style.display = 'block';
+        loginResult.textContent = `Sorry you can't enter you need at least 6 zany gumballs to play the game, you have ${userStickerTemplateIds.length} as of now`;
+      }
+      console.log(JSON.stringify(templatedIdArray, null, '\t'));
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   function createBoard() {
     for (let i = 0; i < width * width; i++) {
@@ -402,19 +560,4 @@ document.addEventListener('DOMContentLoaded', () => {
     checkForColumnOfThree();
     checkForRowOfThree();
   }
-
-  const wax = new waxjs.WaxJS({
-    rpcEndpoint: 'https://wax.greymass.com'
-  });
-
-  async function login() {
-    try {
-      const userAccount = await wax.login();
-      loginBtn.textContent = wax.userAccount;
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  loginBtn.addEventListener('click', login);
 });

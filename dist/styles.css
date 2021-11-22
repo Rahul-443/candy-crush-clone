@@ -24,11 +24,15 @@ html {
   --bar-back: #a5ebcd;
   --bar-front: #2dca86;
 
+  --grey-A5: rgba(128, 128, 128, 0.5);
+
   /* fonts */
   --font-size-08: 0.8rem;
   --font-size-1: 1rem;
   --font-size-2: 2rem;
   --font-size-3: 10rem;
+
+  --font-family-1: 'Exo', sans-serif;
 
   /* border */
   --border-radius-05: 0.2rem;
@@ -50,7 +54,7 @@ body {
   background-size: cover;
   background-position: center;
   font-size: 100%;
-  font-family: 'Exo', sans-serif;
+  font-family: var(--font-family-1);
   color: var(--text-color);
 }
 
@@ -62,6 +66,7 @@ body {
   color: var(--text-color);
   font-weight: 500;
   transition: var(--transition);
+  font-family: var(--font-family-1);
 }
 
 .button:hover {
@@ -95,7 +100,7 @@ main {
   display: none;
   place-items: center;
   gap: 2rem;
-  background-color: rgba(128, 128, 128, 0.5);
+  background-color: var(--grey-A5);
   text-align: center;
   font-size: var(--font-size-2);
 }
@@ -236,6 +241,33 @@ ul {
   list-style-type: none;
   padding: 0;
   align-items: center;
+}
+
+#section-login {
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  display: grid;
+  place-items: center;
+  background-color: var(--grey-A5);
+}
+
+.login-container {
+  text-align: center;
+  max-width: 600px;
+}
+
+#section-login button {
+  border: none;
+  font-size: var(--font-size-2);
+  padding: 1.2rem 4rem;
+  cursor: pointer;
+  margin-bottom: 2rem;
+}
+
+.login-container p {
+  font-size: var(--font-size-1);
+  display: none;
 }
 
 @media screen and (min-width: 800px) {
