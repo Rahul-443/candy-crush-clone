@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('login');
   const enterBtn = document.getElementById('enter');
 
-  let gumballs = ['bop', 'bud', 'chum', 'clunk', 'dapp', 'eke'];
+  let gumballs = [];
 
   let randomImg = getRandImg();
   let lastImg = gumballs[randomImg];
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function getGumballs() {
     try {
       const gumballs = await api.getAccountCollection(
-        'itsdedsec125',
+        wax.userAccount,
         collection_name
       );
       const templatesArray = gumballs['templates'];
@@ -193,6 +193,21 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     createBoard();
+
+    window.setInterval(function() {
+      moveGbDown();
+      checkForRowOfFour();
+      checkForColumnOfFour();
+      checkForColumnOfThree();
+      checkForRowOfThree();
+    }, 100);
+  }
+
+  function checkForMatch() {
+    checkForRowOfFour();
+    checkForColumnOfFour();
+    checkForColumnOfThree();
+    checkForRowOfThree();
   }
 
   function getRandTempId(templatedIds) {
@@ -560,20 +575,5 @@ document.addEventListener('DOMContentLoaded', () => {
     score = 0;
     zanyBar.style.width = 0 + 'rem';
     scoreBar.textContent = 0;
-  }
-
-  window.setInterval(function() {
-    moveGbDown();
-    checkForRowOfFour();
-    checkForColumnOfFour();
-    checkForColumnOfThree();
-    checkForRowOfThree();
-  }, 100);
-
-  function checkForMatch() {
-    checkForRowOfFour();
-    checkForColumnOfFour();
-    checkForColumnOfThree();
-    checkForRowOfThree();
   }
 });
