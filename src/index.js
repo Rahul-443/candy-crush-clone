@@ -177,7 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loginResult.style.display = 'block';
         loginResult.textContent = `Sorry you can't enter you need at least 6 zany gumballs to play the game, you have ${userStickerTemplateIds.length} as of now`;
       }
-      console.log(JSON.stringify(templatedIdArray, null, '\t'));
     } catch (error) {
       console.log(error);
     }
@@ -193,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     createBoard();
+    initiateDrag();
 
     window.setInterval(function() {
       moveGbDown();
@@ -200,14 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
       checkForColumnOfFour();
       checkForColumnOfThree();
       checkForRowOfThree();
+      console.log('working ...');
     }, 100);
-  }
-
-  function checkForMatch() {
-    checkForRowOfFour();
-    checkForColumnOfFour();
-    checkForColumnOfThree();
-    checkForRowOfThree();
   }
 
   function getRandTempId(templatedIds) {
@@ -262,171 +256,173 @@ document.addEventListener('DOMContentLoaded', () => {
     squares.push(square);
   }
 
-  let squareIdBeingDragged;
-  let squareIdBeingReplaced;
-  let imgBeingDragged;
-  let imgBeingReplaced;
-  let ibrAlt;
-  let ibdAlt;
+  function initiateDrag() {
+    let squareIdBeingDragged;
+    let squareIdBeingReplaced;
+    let imgBeingDragged;
+    let imgBeingReplaced;
+    let ibrAlt;
+    let ibdAlt;
 
-  squares.forEach(square => square.addEventListener('dragstart', dragStart));
-  squares.forEach(square => square.addEventListener('dragend', dragEnd));
-  squares.forEach(square => square.addEventListener('dragover', dragOver));
-  squares.forEach(square => square.addEventListener('dragenter', dragEnter));
-  squares.forEach(square => square.addEventListener('dragleave', dragLeave));
-  squares.forEach(square => square.addEventListener('drop', drop));
+    squares.forEach(square => square.addEventListener('dragstart', dragStart));
+    squares.forEach(square => square.addEventListener('dragend', dragEnd));
+    squares.forEach(square => square.addEventListener('dragover', dragOver));
+    squares.forEach(square => square.addEventListener('dragenter', dragEnter));
+    squares.forEach(square => square.addEventListener('dragleave', dragLeave));
+    squares.forEach(square => square.addEventListener('drop', drop));
 
-  function dragStart() {
-    imgBeingDragged = this.querySelector('.img-gumball').getAttribute('src');
-    ibdAlt = this.querySelector('.img-gumball').getAttribute('alt');
-    squareIdBeingDragged = parseInt(this.id);
+    function dragStart() {
+      imgBeingDragged = this.querySelector('.img-gumball').getAttribute('src');
+      ibdAlt = this.querySelector('.img-gumball').getAttribute('alt');
+      squareIdBeingDragged = parseInt(this.id);
 
-    console.log(this.id, 'dragstart');
-  }
+      console.log(this.id, 'dragstart');
+    }
 
-  function dragOver(e) {
-    e.preventDefault();
-    console.log(this.id, 'dragover');
-  }
+    function dragOver(e) {
+      e.preventDefault();
+      console.log(this.id, 'dragover');
+    }
 
-  function dragEnter(e) {
-    e.preventDefault();
-    console.log(this.id, 'dragenter');
-  }
+    function dragEnter(e) {
+      e.preventDefault();
+      console.log(this.id, 'dragenter');
+    }
 
-  function dragLeave() {
-    console.log(this.id, 'dragleave');
-  }
+    function dragLeave() {
+      console.log(this.id, 'dragleave');
+    }
 
-  function drop(e) {
-    e.preventDefault();
+    function drop(e) {
+      e.preventDefault();
 
-    squareIdBeingReplaced = parseInt(this.id);
-    imgBeingReplaced = this.querySelector('.img-gumball').getAttribute('src');
-    ibrAlt = this.querySelector('.img-gumball').getAttribute('alt');
+      squareIdBeingReplaced = parseInt(this.id);
+      imgBeingReplaced = this.querySelector('.img-gumball').getAttribute('src');
+      ibrAlt = this.querySelector('.img-gumball').getAttribute('alt');
 
-    let validMoves = [
-      squareIdBeingDragged - 1,
-      squareIdBeingDragged - width,
-      squareIdBeingDragged + 1,
-      squareIdBeingDragged + width
-    ];
+      let validMoves = [
+        squareIdBeingDragged - 1,
+        squareIdBeingDragged - width,
+        squareIdBeingDragged + 1,
+        squareIdBeingDragged + width
+      ];
 
-    let invalidMove = false;
-    let invalidSquareId;
+      let invalidMove = false;
+      let invalidSquareId;
 
-    if (
-      squareIdBeingDragged === squareIdBeingReplaced - 1 ||
-      squareIdBeingDragged === squareIdBeingReplaced + 1
-    ) {
       if (
-        squareIdBeingDragged % 8 === 0 &&
-        squareIdBeingReplaced < squareIdBeingDragged
+        squareIdBeingDragged === squareIdBeingReplaced - 1 ||
+        squareIdBeingDragged === squareIdBeingReplaced + 1
       ) {
-        invalidSquareId = squareIdBeingDragged;
+        if (
+          squareIdBeingDragged % 8 === 0 &&
+          squareIdBeingReplaced < squareIdBeingDragged
+        ) {
+          invalidSquareId = squareIdBeingDragged;
+        } else if (
+          squareIdBeingReplaced % 8 === 0 &&
+          squareIdBeingDragged < squareIdBeingReplaced
+        ) {
+          invalidSquareId = squareIdBeingReplaced;
+        }
+      }
+
+      if (invalidSquareId) {
+        if (
+          (squareIdBeingDragged === 0 || squareIdBeingReplaced === 0) &&
+          (squareIdBeingDragged === squareIdBeingReplaced - 1 ||
+            squareIdBeingDragged === squareIdBeingReplaced + 1)
+        ) {
+          invalidMove = false;
+        } else {
+          invalidMove = true;
+        }
+      }
+
+      let validMove = validMoves.includes(squareIdBeingReplaced);
+
+      if (
+        (squareIdBeingReplaced || imgBeingDragged) &&
+        validMove &&
+        !invalidMove
+      ) {
+        console.log(0);
+
+        squares[
+          squareIdBeingDragged
+        ].innerHTML = `<img class="img-gumball" src="${imgBeingReplaced}" alt="${ibrAlt}" />`;
+        squares[
+          squareIdBeingReplaced
+        ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
+        checkForMatch();
+
+        squareIdBeingReplaced = null;
+        imgBeingDragged = null;
       } else if (
-        squareIdBeingReplaced % 8 === 0 &&
-        squareIdBeingDragged < squareIdBeingReplaced
+        (squareIdBeingReplaced || imgBeingReplaced) &&
+        (!validMove || invalidMove)
       ) {
-        invalidSquareId = squareIdBeingReplaced;
-      }
-    }
+        console.log(1);
 
-    if (invalidSquareId) {
-      if (
-        (squareIdBeingDragged === 0 || squareIdBeingReplaced === 0) &&
-        (squareIdBeingDragged === squareIdBeingReplaced - 1 ||
-          squareIdBeingDragged === squareIdBeingReplaced + 1)
-      ) {
-        invalidMove = false;
+        squares[
+          squareIdBeingDragged
+        ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
+        squares[
+          squareIdBeingReplaced
+        ].innerHTML = `<img class="img-gumball" src="${imgBeingReplaced}" alt="${ibrAlt}" />`;
       } else {
-        invalidMove = true;
+        console.log(2);
+
+        squares[
+          squareIdBeingDragged
+        ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
       }
-    }
 
-    let validMove = validMoves.includes(squareIdBeingReplaced);
-
-    if (
-      (squareIdBeingReplaced || imgBeingDragged) &&
-      validMove &&
-      !invalidMove
-    ) {
-      console.log(0);
-
-      squares[
-        squareIdBeingDragged
-      ].innerHTML = `<img class="img-gumball" src="${imgBeingReplaced}" alt="${ibrAlt}" />`;
-      squares[
-        squareIdBeingReplaced
-      ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
-      checkForMatch();
-
-      squareIdBeingReplaced = null;
-      imgBeingDragged = null;
-    } else if (
-      (squareIdBeingReplaced || imgBeingReplaced) &&
-      (!validMove || invalidMove)
-    ) {
-      console.log(1);
-
-      squares[
-        squareIdBeingDragged
-      ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
-      squares[
-        squareIdBeingReplaced
-      ].innerHTML = `<img class="img-gumball" src="${imgBeingReplaced}" alt="${ibrAlt}" />`;
-    } else {
-      console.log(2);
-
-      squares[
-        squareIdBeingDragged
-      ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
-    }
-
-    movesLeft -= 1;
-    const movesLeftText = document.getElementById('moves-left');
-    if (movesLeft >= 0) {
-      movesLeftText.textContent = movesLeft.toString();
-    } else {
-      chancesLeft -= 1;
-      if (chancesLeft > 0) {
-        let gameResTime = 5;
-        const chancesLeftTexts = document.getElementsByClassName(
-          'chances-left'
-        );
-        const interval = document.getElementById('interval');
-        console.log(chancesLeftTexts);
-        [...chancesLeftTexts].forEach(element => {
-          element.textContent = chancesLeft.toString();
-        });
-        cbLights[cbLen - 1].style.display = 'none';
-        cbLen--;
-        interval.style.display = 'grid';
-        const timer = document.getElementById('timer');
-        timer.textContent = gameResTime;
-        let gameResTimer = window.setInterval(() => {
-          if (gameResTime > 0) {
-            gameResTime--;
-            timer.textContent = gameResTime.toString();
-          } else {
-            interval.style.display = 'none';
-            movesLeft = 30;
-            resetScore();
-            movesLeftText.textContent = movesLeft.toString();
-            clearInterval(gameResTimer);
-          }
-        }, 1000);
+      movesLeft -= 1;
+      const movesLeftText = document.getElementById('moves-left');
+      if (movesLeft >= 0) {
+        movesLeftText.textContent = movesLeft.toString();
       } else {
-        alert('game over');
-        location.reload();
+        chancesLeft -= 1;
+        if (chancesLeft > 0) {
+          let gameResTime = 5;
+          const chancesLeftTexts = document.getElementsByClassName(
+            'chances-left'
+          );
+          const interval = document.getElementById('interval');
+          console.log(chancesLeftTexts);
+          [...chancesLeftTexts].forEach(element => {
+            element.textContent = chancesLeft.toString();
+          });
+          cbLights[cbLen - 1].style.display = 'none';
+          cbLen--;
+          interval.style.display = 'grid';
+          const timer = document.getElementById('timer');
+          timer.textContent = gameResTime;
+          let gameResTimer = window.setInterval(() => {
+            if (gameResTime > 0) {
+              gameResTime--;
+              timer.textContent = gameResTime.toString();
+            } else {
+              interval.style.display = 'none';
+              movesLeft = 30;
+              resetScore();
+              movesLeftText.textContent = movesLeft.toString();
+              clearInterval(gameResTimer);
+            }
+          }, 1000);
+        } else {
+          alert('game over');
+          location.reload();
+        }
       }
+      console.log(this.id, 'drop');
+      // TODO: Bug - if gb can fit in pattern it gets dropped;
     }
-    console.log(this.id, 'drop');
-    // TODO: Bug - if gb can fit in pattern it gets dropped;
-  }
 
-  function dragEnd() {
-    console.log(this.id, 'dragend');
+    function dragEnd() {
+      console.log(this.id, 'dragend');
+    }
   }
 
   function moveGbDown() {
@@ -562,6 +558,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
     }
+  }
+
+  function checkForMatch() {
+    checkForRowOfFour();
+    checkForColumnOfFour();
+    checkForColumnOfThree();
+    checkForRowOfThree();
   }
 
   function setScore(i) {
