@@ -201,6 +201,10 @@ nav h1 {
   margin-top: 0.2rem;
 }
 
+#zany-bar {
+  display: none;
+}
+
 #progress-back {
   height: 0.5rem;
   width: 6rem;

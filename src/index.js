@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let score = 0;
   let movesLeft = 30;
   let chancesLeft = 5;
+
   const stickerTemplates = [
     '330504',
     '330501',
@@ -59,55 +60,55 @@ document.addEventListener('DOMContentLoaded', () => {
     '110381',
     '110379'
   ];
-  const StickerNames = [
-    'Clunk B/W Sticker',
-    'Me B/W Sticker',
-    'Link B/W Sticker',
-    'Chum B/W Sticker',
-    'Nan B/W Sticker',
-    'Zim Sticker',
-    'Rye Sticker',
-    'Rafe Sticker',
-    'Kay Sticker',
-    'Ice Sticker',
-    'Bae Sticker',
-    'Abe Sticker',
-    'Bop “Saves the Galaxy” Sticker',
-    'Mooch “The Ultimate Gamer” Sticker',
-    'Dave Holographic Reward Sticker',
-    'Two Sides of Eke Reward Sticker',
-    'Pi Sticker',
-    'Pam Sticker',
-    'Kipp Sticker',
-    'Grey Sticker',
-    'Jill Sticker',
-    'Holt Sticker',
-    'Fuse Sticker',
-    'Elle Sticker',
-    'Yam Sticker',
-    'Trish Sticker',
-    'Stan Sticker',
-    'Sis Sticker',
-    'Shar Sticker',
-    'Sauce Sticker',
-    'Rush Sticker',
-    'Roy Sticker',
-    'Prim Sticker',
-    'Nan Sticker',
-    'Mooch Sticker',
-    'Mike Sticker',
-    'Me Sticker',
-    'Link Sticker',
-    'Kells Sticker',
-    'Jet Sticker',
-    'Hue Sticker',
-    'Faith Sticker',
-    'Eke Sticker',
-    'Dapp Sticker',
-    'Clunk Sticker',
-    'Chum Sticker',
-    'Bud Sticker',
-    'Bop Sticker'
+  const stickerNames = [
+    'clunk_bw',
+    'me_bw',
+    'link_bw',
+    'chum_bw',
+    'nan_bw',
+    'zim',
+    'rye',
+    'rafe',
+    'kay',
+    'ice',
+    'bae',
+    'abe',
+    'bop_saves_galaxy',
+    'mooch_bw',
+    'dave',
+    'eke_two_sides',
+    'pi',
+    'pam',
+    'kipp',
+    'grey',
+    'jill',
+    'holt',
+    'fuse',
+    'elle',
+    'yam',
+    'trish',
+    'stan',
+    'sis',
+    'shar',
+    'sauce',
+    'rush',
+    'roy',
+    'prim',
+    'nan',
+    'mooch',
+    'mike',
+    'me',
+    'link',
+    'kells',
+    'jet',
+    'hue',
+    'faith',
+    'eke',
+    'dapp',
+    'clunk',
+    'chum',
+    'bud',
+    'bop'
   ];
 
   const scoreBar = document.getElementById('score');
@@ -122,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('login');
   const enterBtn = document.getElementById('enter');
 
-  const gumballs = ['bop', 'bud', 'chum', 'clunk', 'dapp', 'eke'];
+  let gumballs = ['bop', 'bud', 'chum', 'clunk', 'dapp', 'eke'];
 
   let randomImg = getRandImg();
   let lastImg = gumballs[randomImg];
@@ -154,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function getGumballs() {
     try {
       const gumballs = await api.getAccountCollection(
-        wax.userAccount,
+        'itsdedsec125',
         collection_name
       );
       const templatesArray = gumballs['templates'];
@@ -171,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (userStickerTemplateIds.length >= 6) {
         sectionLogin.style.display = 'none';
         loginBtn.textContent = wax.userAccount;
+        randomizeGumballs(userStickerTemplateIds);
       } else {
         loginResult.style.display = 'block';
         loginResult.textContent = `Sorry you can't enter you need at least 6 zany gumballs to play the game, you have ${userStickerTemplateIds.length} as of now`;
@@ -179,6 +181,22 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  function randomizeGumballs(stickerIds) {
+    for (let i = 0; i < 6; i++) {
+      let randTempId = getRandTempId(stickerIds);
+      gumballs.push(stickerNames[stickerTemplates.indexOf(randTempId)]);
+      let i = stickerIds.indexOf(randTempId);
+      if (i != -1) {
+        stickerIds.splice(i, 1);
+      }
+    }
+    createBoard();
+  }
+
+  function getRandTempId(templatedIds) {
+    return templatedIds[Math.floor(Math.random() * templatedIds.length)];
   }
 
   function createBoard() {
@@ -228,8 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
     grid.appendChild(square);
     squares.push(square);
   }
-
-  createBoard();
 
   let squareIdBeingDragged;
   let squareIdBeingReplaced;
