@@ -5,90 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Zany Gumballs</title>
-    <link rel="stylesheet" href="./styles.css">
-    <link rel="shortcut icon" href="./imgs/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="shortcut icon" href="./imgs/favicon.png" type="image/x-icon" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo&display=swap" rel="stylesheet"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Exo&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <section id="game">
-      <nav>
-        <h1><span class="zany">Zany</span>&nbspGumballs</h3>
-        <ul class="links">
-          <li><a href="index.html" class="link">Home</a></li>
-          <li><a 
-            href="https://wax.atomichub.io/market?collection_name=zanygumballs&order=desc&schema_name=stickers&sort=created&symbol=WAX" 
+    <nav>
+      <h1><span class="zany">Zany</span>&nbspGumballs</h1>
+      <ul class="links">
+        <li><a href="index.html" class="link">Home</a></li>
+        <li>
+          <a
+            href="https://wax.atomichub.io/market?collection_name=zanygumballs&order=desc&schema_name=stickers&sort=created&symbol=WAX"
             class="link"
             target="_blank"
-            >Shop</a></li>
-          <li><a href="#" id="login" class="button">Login</a></li>
-        </ul>
-      </nav>
-      <main>
-        <section class="section-center">        
-          <section class="left">
-            <div class="info">
-              <h3>daily chances left - <span class="chances-left">5</span></h3>
-              <div id="chance-bar">
-                <div class="chnc"></div>
-                <div class="chnc"></div>
-                <div class="chnc"></div>
-                <div class="chnc"></div>
-                <div class="chnc"></div>
-              </div>
+            >Shop</a
+          >
+        </li>
+        <li><a href="#" id="login" class="button">Login</a></li>
+      </ul>
+    </nav>
+    <section class="section-center">
+      <section class="left">
+        <div class="info">
+          <p>daily chances left - <span class="chances-left">5</span></p>
+          <div id="chance-bar">
+            <div class="chnc"></div>
+            <div class="chnc"></div>
+            <div class="chnc"></div>
+            <div class="chnc"></div>
+            <div class="chnc"></div>
+          </div>
+        </div>
+        <div class="info">
+          <p>score - <span id="score">0</span></p>
+          <p>moves left - <span id="moves-left">30</span></p>
+          <div id="zany-bar">
+            <div id="progress-back">
+              <div id="progress-front"></div>
             </div>
-            <div class="info">
-              <h3>
-                score - <span id="score">0</span>
-              </h3>
-              <h3>
-                moves left - <span id="moves-left">30</span>
-              </h3>
-              <div id="zany-bar">
-                <div id="progress-back">
-                  <div id="progress-front">
-                  </div>
-                </div>
-                <a href="#" id="claim-zany" class="button">
-                  claim
-                </a>
-              </div>
-            </div>
-          </section>
-          <section class="grid"></section>
-          <section class="right">
-            <div class="info users-wrapper"></div>
-          </section>
-        </section>
-      </main>
-      <section id="interval">
-        <p><span class="chances-left">4</span> chances left <br> <span id="timer">5</span></p>
-      </section>
-      <section id="section-login">
-        <div class="login-container">
-          <button class="button" id="enter">
-            Enter
-          </button>
-          <p id="login-result">
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequuntur porro perferendis est odio sequi beatae distinctio dicta velit sunt nostrum!
-          </p>
+            <a href="#" id="claim-zany" class="button">
+              claim
+            </a>
+          </div>
+        </div>
+        <div class="info users-wrapper">
+          <p class="rank">Your Rank - <span id="rank">1234</span></p>
+          <a href="./leaderboard.html" class="link">Leaderboard</a>
         </div>
       </section>
+      <section class="grid"></section>
+      <section class="right">
+        <div class="asset-wrapper" id="asset-wrapper"></div>
+      </section>
+    </section>
+    <section id="interval">
+      <p>
+        <span class="chances-left">4</span> chances left <br />
+        <span id="timer">5</span>
+      </p>
+    </section>
+    <section id="section-login">
+      <div class="login-container">
+        <button class="button" id="enter">
+          Enter
+        </button>
+        <p id="login-result">
+          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequuntur
+          porro perferendis est odio sequi beatae distinctio dicta velit sunt
+          nostrum!
+        </p>
+      </div>
     </section>
     <script>
-        if ("serviceWorker" in navigator) {
-            window.addEventListener("load", () => {
-                navigator.serviceWorker
-                    .register("service-worker.js")
-                    .then((registration) => {
-                        console.log("Service Worker registered: ", registration);
-                    })
-                    .catch((registrationError) => {
-                        console.error("Service Worker registration failed: ", registrationError);
-                    });
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker
+            .register('service-worker.js')
+            .then(registration => {
+              console.log('Service Worker registered: ', registration);
+            })
+            .catch(registrationError => {
+              console.error(
+                'Service Worker registration failed: ',
+                registrationError
+              );
             });
-        }
+        });
+      }
     </script>
     <script src="./main.js"></script>
   </body>

@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function getGumballs() {
     try {
       const gumballs = await api.getAccountCollection(
-        'itsdedsec125',
+        wax.userAccount,
         collection_name
       );
       const templatesArray = gumballs['templates'];
