@@ -122,7 +122,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginResult = document.getElementById('login-result');
   const loginBtn = document.getElementById('login');
   const enterBtn = document.getElementById('enter');
+  const assetWrapper = document.getElementById('asset-wrapper');
 
+  let userStickerTemplateIds = [];
   let gumballs = [];
 
   let randomImg = getRandImg();
@@ -155,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function getGumballs() {
     try {
       const gumballs = await api.getAccountCollection(
-        wax.userAccount,
+        'itsdedsec125',
         collection_name
       );
       const templatesArray = gumballs['templates'];
@@ -163,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
       templatesArray.forEach(template => {
         templatedIdArray.push(template['template_id']);
       });
-      let userStickerTemplateIds = [];
       templatedIdArray.forEach(templateId => {
         if (stickerTemplates.includes(templateId)) {
           userStickerTemplateIds.push(templateId);
