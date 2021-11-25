@@ -11,7 +11,7 @@ const { ExplorerApi, RpcApi } = require('atomicassets');
 var app = express();
 
 app.use(express.static(path.join(__dirname, 'dist')));
-app.use(express.json);
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.post('/save_score', function(req, res) {
