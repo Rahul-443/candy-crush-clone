@@ -32,7 +32,7 @@ app.post('/save_score', function(req, res) {
     } else {
       data = JSON.parse(data);
       data[user_id] = score_new[user_id];
-      res.end(JSON.stringify(data));
+      res.end(JSON.stringify(score_new));
     }
   });
 });
