@@ -5,10 +5,13 @@ import { ExplorerApi, RpcApi } from 'atomicassets';
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.querySelector('.grid');
   const width = 8;
-  const squares = [];
+  let squares;
+  let userStickerTemplateIds;
+  let gumballs = [];
   let score = 0;
   let movesLeft = 30;
   let chancesLeft = 5;
+  const collection_name = 'zanygumballs';
 
   const stickerTemplates = [
     '330504',
@@ -124,9 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const enterBtn = document.getElementById('enter');
   const assetWrapper = document.getElementById('asset-wrapper');
 
-  let userStickerTemplateIds = [];
-  let gumballs = [];
-
   let randomImg = getRandImg();
   let lastImg = gumballs[randomImg];
 
@@ -152,12 +152,10 @@ document.addEventListener('DOMContentLoaded', () => {
     { fetch }
   );
 
-  const collection_name = 'zanygumballs';
-
   async function getGumballs() {
     try {
       const gumballs = await api.getAccountCollection(
-        wax.userAccount,
+        'itsdedsec125',
         collection_name
       );
       const templatesArray = gumballs['templates'];
@@ -165,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
       templatesArray.forEach(template => {
         templatedIdArray.push(template['template_id']);
       });
+      userStickerTemplateIds = [];
       templatedIdArray.forEach(templateId => {
         if (stickerTemplates.includes(templateId)) {
           userStickerTemplateIds.push(templateId);
@@ -173,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (userStickerTemplateIds.length >= 6) {
         sectionLogin.style.display = 'none';
         loginBtn.textContent = wax.userAccount;
-        randomizeGumballs(userStickerTemplateIds);
+        randomizeGumballs();
       } else {
         loginResult.style.display = 'block';
         loginResult.textContent = `Sorry you can't enter you need at least 6 zany gumballs to play the game, you have ${userStickerTemplateIds.length} as of now`;
@@ -183,13 +182,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function randomizeGumballs(stickerIds) {
+  function randomizeGumballs() {
     for (let i = 0; i < 6; i++) {
-      let randTempId = getRandTempId(stickerIds);
+      let ids = userStickerTemplateIds;
+      let randTempId = getRandTempId(ids);
       gumballs.push(stickerNames[stickerTemplates.indexOf(randTempId)]);
-      let i = stickerIds.indexOf(randTempId);
+      let i = ids.indexOf(randTempId);
       if (i != -1) {
-        stickerIds.splice(i, 1);
+        ids.splice(i, 1);
       }
     }
     createBoard();
@@ -201,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
       checkForColumnOfFour();
       checkForColumnOfThree();
       checkForRowOfThree();
-      console.log('working ...');
     }, 100);
   }
 
@@ -210,6 +209,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function createBoard() {
+    grid.innerHTML = '';
+    squares = [];
     for (let i = 0; i < width * width; i++) {
       createCell(i);
     }
@@ -408,6 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
               interval.style.display = 'none';
               movesLeft = 30;
               resetScore();
+              randomizeGumballs();
               movesLeftText.textContent = movesLeft.toString();
               clearInterval(gameResTimer);
             }
