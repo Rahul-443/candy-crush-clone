@@ -13,9 +13,9 @@ var app = express();
 app.use(express.static(path.join(__dirname, 'dist')));
 
 app.post('/save_score', function(req, res) {
-  const user_id = req.query.user_id;
-  const chances_left = req.query.chances_left;
-  const score = req.query.score;
+  const user_id = req.body.user_id;
+  const chances_left = req.body.chances_left;
+  const score = req.body.score;
   const score_new = {
     user_id: {
       chances_left: chances_left,
