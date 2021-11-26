@@ -19,10 +19,8 @@ app.post('/save_score', function(req, res) {
   const chances_left = req.body.chances_left;
   const score = req.body.score;
   const score_new = {
-    user_id: {
-      chances_left: chances_left,
-      score: score
-    }
+    chances_left: chances_left,
+    score: score
   };
 
   fs.readFile(path.join(__dirname, 'scores.json'), 'utf-8', function(
@@ -33,8 +31,42 @@ app.post('/save_score', function(req, res) {
       console.log(err);
     } else {
       data = JSON.parse(data);
-      data[user_id] = score_new[user_id];
-      res.end(JSON.stringify(score_new));
+      data[user_id] = score_new;
+      res.send(JSON.stringify(data[user_id]));
+    }
+  });
+});
+
+app.param('user_id', function(req, res, next, user_id) {
+  const id = user_id;
+  req.user_id = id;
+  next();
+});
+
+app.get('/users/:user_id', function(req, res) {
+  fs.readFile(path.join(__dirname, 'scores.json'), 'utf-8', function(
+    err,
+    data
+  ) {
+    if (err) {
+      console.log(err);
+    } else {
+      data = JSON.parse(data);
+      res.send(JSON.stringify(data[req.user_id]));
+    }
+  });
+});
+
+app.get('/users', function(req, res) {
+  fs.readFile(path.join(__dirname, 'scores.json'), 'utf-8', function(
+    err,
+    data
+  ) {
+    if (err) {
+      console.log(err);
+    } else {
+      data = JSON.parse(data);
+      res.send(JSON.stringify(data));
     }
   });
 });
