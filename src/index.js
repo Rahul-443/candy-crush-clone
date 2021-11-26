@@ -140,15 +140,14 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const userAccount = await wax.login();
       enterBtn.textContent = wax.userAccount;
-      fetch(`https://www.zany-gumballs.herokuapp.com/${wax.userAccount}`)
-        .then(response => response.json)
+      fetch(`http://127.0.0.1:8080/users/${wax.userAccount}`)
+        .then(response => response.json())
         .then(data => {
-          if (data != null) {
-            chancesLeft = data.chances_left;
-            [...chancesLeftTexts].forEach(element => {
-              element.textContent = chances_left.toString();
-            });
-          }
+          console.log(data);
+          chancesLeft = data.chances_left;
+          [...chancesLeftTexts].forEach(element => {
+            element.textContent = chances_left.toString();
+          });
         });
       getGumballs();
     } catch (e) {
@@ -410,16 +409,18 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let property in userData) {
           let encodedKey = encodeURIComponent(property);
           let encodedVal = encodeURIComponent(userData[property]);
-          formBody.push(`${encodedKey} ${encodedVal}`);
+          formBody.push(`${encodedKey}=${encodedVal}`);
         }
         formBody = formBody.join('&');
-        fetch('https://www.zany-gumballs.herokuapp.com/save_score', {
+        fetch('http://127.0.0.1:8080/save_score', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
           },
           body: formBody
-        });
+        })
+          .then(response => response.json())
+          .then(data => console.log(data));
 
         if (chancesLeft > 0) {
           let gameResTime = 5;

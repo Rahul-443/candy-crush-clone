@@ -10,6 +10,21 @@ const { ExplorerApi, RpcApi } = require('atomicassets');
 
 var app = express();
 
+app.use(function(req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET, POST, OPTIONS, PUT, PATCH, DELETE'
+  );
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-Requested-With,content-type'
+  );
+  res.setHeader('Access-Control-Allow-Credentials', true);
+
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -68,7 +83,11 @@ app.get('/users/:user_id', function(req, res) {
       console.log(err);
     } else {
       data = JSON.parse(data);
-      res.send(JSON.stringify(data[req.user_id]));
+      if (data.hasOwnProperty(req.user_id)) {
+        res.send(JSON.stringify(data[req.user_id]));
+      } else {
+        res.send('user not found');
+      }
     }
   });
 });
