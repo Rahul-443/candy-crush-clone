@@ -80,6 +80,26 @@ app.get('/users', function(req, res) {
   });
 });
 
+setInterval(function() {
+  fs.readFile(path.join(__dirname, 'scores.json'), 'utf-8', function(
+    err,
+    data
+  ) {
+    if (err) {
+      console.log(err);
+    } else {
+      data = JSON.parse(data);
+      data = {};
+      data = JSON.stringify(data);
+      fs.writeFile(path.join(__dirname, 'scores.json'), data, 'utf-8', function(
+        err
+      ) {
+        console.log(err);
+      });
+    }
+  });
+}, 60000);
+
 app.set('port', process.env.PORT || 8080);
 
 var server = app.listen(app.get('port'), function() {
