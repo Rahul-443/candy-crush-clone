@@ -32,6 +32,15 @@ app.post('/save_score', function(req, res) {
     } else {
       data = JSON.parse(data);
       data[user_id] = score_new;
+      let sData = JSON.stringify(data);
+      fs.writeFile(
+        path.join(__dirname, 'scores.json'),
+        sData,
+        'utf-8',
+        function(err) {
+          console.log(err);
+        }
+      );
       res.send(JSON.stringify(data[user_id]));
     }
   });
