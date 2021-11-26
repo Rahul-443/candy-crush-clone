@@ -98,7 +98,7 @@ setInterval(function() {
       });
     }
   });
-}, 60000);
+}, 86400000);
 
 app.set('port', process.env.PORT || 8080);
 
