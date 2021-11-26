@@ -18,10 +18,6 @@ app.post('/save_score', function(req, res) {
   const user_id = req.body.user_id;
   const chances_left = req.body.chances_left;
   const score = req.body.score;
-  const score_new = {
-    chances_left: chances_left,
-    score: score
-  };
 
   fs.readFile(path.join(__dirname, 'scores.json'), 'utf-8', function(
     err,
@@ -31,17 +27,28 @@ app.post('/save_score', function(req, res) {
       console.log(err);
     } else {
       data = JSON.parse(data);
-      data[user_id] = score_new;
-      let sData = JSON.stringify(data);
-      fs.writeFile(
-        path.join(__dirname, 'scores.json'),
-        sData,
-        'utf-8',
-        function(err) {
-          console.log(err);
-        }
-      );
-      res.send(JSON.stringify(data[user_id]));
+      const score_new = {
+        chances_left: chances_left,
+        score: score
+      };
+      if (data.hasOwnProperty(user_id)) {
+        score_new[chances_left] = data[user_id][chances_left] - 1;
+      } else {
+        score_new[chances_left] = 4;
+      }
+      if (score_new[chances_left] > -1) {
+        data[user_id] = score_new;
+        let sData = JSON.stringify(data);
+        fs.writeFile(
+          path.join(__dirname, 'scores.json'),
+          sData,
+          'utf-8',
+          function(err) {
+            console.log(err);
+          }
+        );
+        res.send(JSON.stringify(data[user_id]));
+      }
     }
   });
 });
@@ -89,7 +96,10 @@ setInterval(function() {
       console.log(err);
     } else {
       data = JSON.parse(data);
-      data = {};
+      for (let property in data) {
+        property[chances_left] = 5;
+        property[score] = 0;
+      }
       data = JSON.stringify(data);
       fs.writeFile(path.join(__dirname, 'scores.json'), data, 'utf-8', function(
         err

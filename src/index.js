@@ -122,6 +122,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const cbLights = chanceBar.getElementsByClassName('chnc');
   let cbLen = cbLights.length;
 
+  const chancesLeftTexts = document.getElementsByClassName('chances-left');
+
   const loginResult = document.getElementById('login-result');
   const loginBtn = document.getElementById('login');
   const enterBtn = document.getElementById('enter');
@@ -138,6 +140,16 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const userAccount = await wax.login();
       enterBtn.textContent = wax.userAccount;
+      fetch(`https://www.zany-gumballs.herokuapp.com/${wax.userAccount}`)
+        .then(response => response.json)
+        .then(data => {
+          if (data != null) {
+            chancesLeft = data.chances_left;
+            [...chancesLeftTexts].forEach(element => {
+              element.textContent = chances_left.toString();
+            });
+          }
+        });
       getGumballs();
     } catch (e) {
       console.log(e);
@@ -193,15 +205,17 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     createBoard();
-    initiateDrag();
+    if (chancesLeft > 0) {
+      initiateDrag();
 
-    window.setInterval(function() {
-      moveGbDown();
-      checkForRowOfFour();
-      checkForColumnOfFour();
-      checkForColumnOfThree();
-      checkForRowOfThree();
-    }, 100);
+      window.setInterval(function() {
+        moveGbDown();
+        checkForRowOfFour();
+        checkForColumnOfFour();
+        checkForColumnOfThree();
+        checkForRowOfThree();
+      }, 100);
+    }
   }
 
   function getRandTempId(templatedIds) {
@@ -386,11 +400,29 @@ document.addEventListener('DOMContentLoaded', () => {
         movesLeftText.textContent = movesLeft.toString();
       } else {
         chancesLeft -= 1;
+
+        var userData = {
+          user_id: wax.userAccount,
+          chances_left: chancesLeft,
+          score: score
+        };
+        let formBody = [];
+        for (let property in userData) {
+          let encodedKey = encodeURIComponent(property);
+          let encodedVal = encodeURIComponent(userData[property]);
+          formBody.push(`${encodedKey} ${encodedVal}`);
+        }
+        formBody = formBody.join('&');
+        fetch('https://www.zany-gumballs.herokuapp.com/save_score', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: formBody
+        });
+
         if (chancesLeft > 0) {
           let gameResTime = 5;
-          const chancesLeftTexts = document.getElementsByClassName(
-            'chances-left'
-          );
           const interval = document.getElementById('interval');
           console.log(chancesLeftTexts);
           [...chancesLeftTexts].forEach(element => {
