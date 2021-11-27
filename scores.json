@@ -1,1 +1,4 @@
-{"abcde.wam":{"chances_left":3,"score":100},"aeiou.wam":{"chances_left":3,"score":100},"undefined":{"undefined":4}}
+{
+  "abcde.wam": { "chances_left": 3, "score": 100 },
+  "aeiou.wam": { "chances_left": 3, "score": 100 }
+}

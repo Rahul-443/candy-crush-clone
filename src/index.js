@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let movesLeft = 30;
   let chancesLeft = 5;
   const collection_name = 'zanygumballs';
+  const localHost = 'http://localhost:8080';
+  const zanyGumballsSite = 'https://www.zany-gumballs.herokuapp.com';
 
   const stickerTemplates = [
     '330504',
@@ -140,14 +142,12 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const userAccount = await wax.login();
       enterBtn.textContent = wax.userAccount;
-      fetch(`http://127.0.0.1:8080/users/${wax.userAccount}`)
+      fetch(`${zanyGumballsSite}/users/${wax.userAccount}`)
         .then(response => response.json())
         .then(data => {
           console.log(data);
           chancesLeft = data.chances_left;
-          [...chancesLeftTexts].forEach(element => {
-            element.textContent = chances_left.toString();
-          });
+          setChances();
         });
       getGumballs();
     } catch (e) {
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function getGumballs() {
     try {
       const gumballs = await api.getAccountCollection(
-        'itsdedsec125',
+        wax.userAccount,
         collection_name
       );
       const templatesArray = gumballs['templates'];
@@ -412,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
           formBody.push(`${encodedKey}=${encodedVal}`);
         }
         formBody = formBody.join('&');
-        fetch('http://127.0.0.1:8080/save_score', {
+        fetch(`${zanyGumballsSite}/save_score`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -426,11 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
           let gameResTime = 5;
           const interval = document.getElementById('interval');
           console.log(chancesLeftTexts);
-          [...chancesLeftTexts].forEach(element => {
-            element.textContent = chancesLeft.toString();
-          });
-          cbLights[cbLen - 1].style.display = 'none';
-          cbLen--;
+          removeOneChance();
           interval.style.display = 'grid';
           const timer = document.getElementById('timer');
           timer.textContent = gameResTime;
@@ -614,5 +610,24 @@ document.addEventListener('DOMContentLoaded', () => {
     score = 0;
     zanyBar.style.width = 0 + 'rem';
     scoreBar.textContent = 0;
+  }
+
+  function removeOneChance() {
+    [...chancesLeftTexts].forEach(element => {
+      element.textContent = chancesLeft.toString();
+    });
+    cbLights[cbLen - 1].style.display = 'none';
+    cbLen--;
+  }
+
+  function setChances() {
+    [...chancesLeftTexts].forEach(element => {
+      element.textContent = chancesLeft.toString();
+    });
+    let usedChances = 5 - chancesLeft;
+    for (let i = 1; i <= usedChances; i++) {
+      cbLights[cbLen - i].style.display = 'none';
+    }
+    cbLen = chancesLeft;
   }
 });

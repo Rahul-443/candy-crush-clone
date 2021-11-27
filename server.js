@@ -10,8 +10,11 @@ const { ExplorerApi, RpcApi } = require('atomicassets');
 
 var app = express();
 
+const localHost = 'http://localhost:8080';
+const zanyGumballsSite = 'https://www.zany-gumballs.herokuapp.com';
+
 app.use(function(req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
+  res.setHeader('Access-Control-Allow-Origin', zanyGumballsSite);
   res.setHeader(
     'Access-Control-Allow-Methods',
     'GET, POST, OPTIONS, PUT, PATCH, DELETE'
@@ -47,11 +50,11 @@ app.post('/save_score', function(req, res) {
         score: score
       };
       if (data.hasOwnProperty(user_id)) {
-        score_new[chances_left] = data[user_id][chances_left] - 1;
+        score_new['chances_left'] = data[user_id]['chances_left'] - 1;
       } else {
-        score_new[chances_left] = 4;
+        score_new['chances_left'] = 4;
       }
-      if (score_new[chances_left] > -1) {
+      if (score_new['chances_left'] > -1) {
         data[user_id] = score_new;
         let sData = JSON.stringify(data);
         fs.writeFile(
@@ -83,10 +86,25 @@ app.get('/users/:user_id', function(req, res) {
       console.log(err);
     } else {
       data = JSON.parse(data);
-      if (data.hasOwnProperty(req.user_id)) {
+      if (data[req.user_id]) {
         res.send(JSON.stringify(data[req.user_id]));
       } else {
-        res.send('user not found');
+        const user_addr = req.user_id;
+        let user_def_data = {
+          chances_left: 5,
+          score: 0
+        };
+        data[user_addr] = user_def_data;
+        let sData = JSON.stringify(data);
+        fs.writeFile(
+          path.join(__dirname, 'scores.json'),
+          sData,
+          'utf-8',
+          function(err) {
+            console.log(err);
+          }
+        );
+        res.send(data[user_addr]);
       }
     }
   });
@@ -116,8 +134,8 @@ setInterval(function() {
     } else {
       data = JSON.parse(data);
       for (let property in data) {
-        property[chances_left] = 5;
-        property[score] = 0;
+        property['chances_left'] = 5;
+        property['score'] = 0;
       }
       data = JSON.stringify(data);
       fs.writeFile(path.join(__dirname, 'scores.json'), data, 'utf-8', function(
