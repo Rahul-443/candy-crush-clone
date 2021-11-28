@@ -120,6 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const zanyBar = document.getElementById('progress-front');
 
   const sectionLogin = document.getElementById('section-login');
+  const menuButton = document.getElementById('btn-menu');
+  const menu = document.querySelector('.links');
   const chanceBar = document.getElementById('chance-bar');
   const cbLights = chanceBar.getElementsByClassName('chnc');
   let cbLen = cbLights.length;
@@ -133,6 +135,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let randomImg = getRandImg();
   let lastImg = gumballs[randomImg];
+
+  menuButton.addEventListener('click', () => {
+    console.log(menu);
+
+    menu.classList.toggle('show-links');
+  });
+
+  if (sessionStorage.getItem('userLoggedIn')) {
+    sectionLogin.style.display = 'none';
+  }
 
   const wax = new waxjs.WaxJS({
     rpcEndpoint: 'https://wax.greymass.com'
@@ -181,6 +193,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
       if (userStickerTemplateIds.length >= 6) {
+        sessionStorage.setItem('userLoggedIn', true);
+        sessionStorage.setItem('userAddress', wax.userAccount);
         sectionLogin.style.display = 'none';
         loginBtn.textContent = wax.userAccount;
         randomizeGumballs();
