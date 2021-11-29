@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let chancesLeft = 5;
   const collection_name = 'zanygumballs';
   const localHost = 'http://localhost:8080';
-  const zanyGumballsSite = 'https://zany-gumballs.herokuapp.com/';
+  const zanyGumballsSite = 'https://zany-gumballs.herokuapp.com';
 
   const stickerTemplates = [
     '330504',
