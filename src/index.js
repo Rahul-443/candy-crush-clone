@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let movesLeft = 30;
   let chancesLeft = 5;
   const collection_name = 'zanygumballs';
+  let userAddress;
   const localHost = 'http://localhost:8080';
   const zanyGumballsSite = 'https://zany-gumballs.herokuapp.com';
 
@@ -144,6 +145,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (sessionStorage.getItem('userLoggedIn')) {
     sectionLogin.style.display = 'none';
+    userAddress = sessionStorage.getItem('userAddress');
+    loginBtn.textContent = userAddress;
+    userStickerTemplateIds = [];
+    userStickerTemplateIds.push(
+      ...JSON.parse(sessionStorage.getItem('userStickerTemplateIds'))
+    );
+    chancesLeft = sessionStorage.getItem('chancesLeft');
+    setChances();
+    randomizeGumballs();
   }
 
   const wax = new waxjs.WaxJS({
@@ -153,12 +163,14 @@ document.addEventListener('DOMContentLoaded', () => {
   async function login() {
     try {
       const userAccount = await wax.login();
-      enterBtn.textContent = wax.userAccount;
-      fetch(`${zanyGumballsSite}/users/${wax.userAccount}`)
+      userAddress = wax.userAccount;
+      enterBtn.textContent = userAddress;
+      fetch(`${zanyGumballsSite}/users/${userAddress}`)
         .then(response => response.json())
         .then(data => {
           console.log(data);
           chancesLeft = data.chances_left;
+          sessionStorage.setItem('chancesLeft', chancesLeft);
           setChances();
         });
       getGumballs();
@@ -178,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function getGumballs() {
     try {
       const gumballs = await api.getAccountCollection(
-        wax.userAccount,
+        userAddress,
         collection_name
       );
       const templatesArray = gumballs['templates'];
@@ -194,9 +206,13 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       if (userStickerTemplateIds.length >= 6) {
         sessionStorage.setItem('userLoggedIn', true);
-        sessionStorage.setItem('userAddress', wax.userAccount);
+        sessionStorage.setItem('userAddress', userAddress);
+        sessionStorage.setItem(
+          'userStickerTemplateIds',
+          JSON.stringify(userStickerTemplateIds)
+        );
         sectionLogin.style.display = 'none';
-        loginBtn.textContent = wax.userAccount;
+        loginBtn.textContent = userAddress;
         randomizeGumballs();
       } else {
         loginResult.style.display = 'block';
@@ -418,9 +434,10 @@ document.addEventListener('DOMContentLoaded', () => {
         movesLeftText.textContent = movesLeft.toString();
       } else {
         chancesLeft -= 1;
+        sessionStorage.setItem('chancesLeft', chancesLeft);
 
         var userData = {
-          user_id: wax.userAccount,
+          user_id: userAddress,
           chances_left: chancesLeft,
           score: score
         };
