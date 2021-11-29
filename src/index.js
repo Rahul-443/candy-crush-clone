@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let chancesLeft = 5;
   const collection_name = 'zanygumballs';
   const localHost = 'http://localhost:8080';
-  const zanyGumballsSite = 'https://www.zany-gumballs.herokuapp.com';
+  const zanyGumballsSite = 'https://zany-gumballs.herokuapp.com/';
 
   const stickerTemplates = [
     '330504',
@@ -208,15 +208,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function randomizeGumballs() {
+    gumballs = [];
+    let ids = [];
+    ids.push(...userStickerTemplateIds);
+    // Not sure why in the console the ids are being printed as if they have had already looped up and spliced up.
+
     for (let i = 0; i < 6; i++) {
-      let ids = userStickerTemplateIds;
       let randTempId = getRandTempId(ids);
       gumballs.push(stickerNames[stickerTemplates.indexOf(randTempId)]);
-      let i = ids.indexOf(randTempId);
-      if (i != -1) {
-        ids.splice(i, 1);
+      let j = ids.indexOf(randTempId);
+      if (j != -1) {
+        ids.splice(j, 1);
       }
     }
+
     createBoard();
     if (chancesLeft > 0) {
       initiateDrag();
@@ -231,8 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function getRandTempId(templatedIds) {
-    return templatedIds[Math.floor(Math.random() * templatedIds.length)];
+  function getRandTempId(templateIds) {
+    return templateIds[Math.floor(Math.random() * templateIds.length)];
   }
 
   function createBoard() {
