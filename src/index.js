@@ -404,10 +404,15 @@ document.addEventListener('DOMContentLoaded', () => {
         squares[
           squareIdBeingReplaced
         ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
+
         checkForMatch();
 
         squareIdBeingReplaced = null;
         imgBeingDragged = null;
+
+        if (ibrAlt !== ibdAlt) {
+          movesLeft -= 1;
+        }
       } else if (
         (squareIdBeingReplaced || imgBeingReplaced) &&
         (!validMove || invalidMove)
@@ -428,9 +433,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
       }
 
-      movesLeft -= 1;
       const movesLeftText = document.getElementById('moves-left');
-      if (movesLeft >= 0) {
+      if (movesLeft >= 1) {
         movesLeftText.textContent = movesLeft.toString();
       } else {
         chancesLeft -= 1;
