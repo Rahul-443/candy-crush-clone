@@ -1,5 +1,8 @@
 const assets = document.querySelector('.assets');
 const btnLogin = document.getElementById('login');
+const btnMenu = document.getElementById('btn-menu');
+const menu = document.querySelector('.links');
+
 const stickerTemplates = [
   '330504',
   '330501',
@@ -101,18 +104,73 @@ const stickerNames = [
   'bop'
 ];
 
+const names = [
+  'Clunk CAIT Special',
+  'Me CAIT Special',
+  'Link CAIT Special',
+  'Chum CAIT Special',
+  'Nan CAIT Special',
+  'Zim',
+  'Rye',
+  'Rafe',
+  'Kay',
+  'Ice',
+  'Bae',
+  'Abe',
+  'Bop - Saviour of Galaxy',
+  'Mooch - Gamer Reward',
+  'Dave',
+  'Two sides of Eke',
+  'Pi',
+  'Pam',
+  'Kipp',
+  'Grey',
+  'Jill',
+  'Holt',
+  'Fuse',
+  'Elle',
+  'Yam',
+  'Trish',
+  'Stan',
+  'Sis',
+  'Shar',
+  'Sauce',
+  'Rush',
+  'Roy',
+  'Prim',
+  'Nan',
+  'Mooch',
+  'Mike',
+  'Me',
+  'Link',
+  'Kells',
+  'Jet',
+  'Hue',
+  'Faith',
+  'Eke',
+  'Dapp',
+  'Clunk',
+  'Chum',
+  'Bud',
+  'Bop'
+];
+
 if (sessionStorage.getItem('userAddress') !== null) {
   btnLogin.textContent = sessionStorage.getItem('userAddress');
+  btnMenu.addEventListener('click', () => {
+    menu.classList.toggle('show-links');
+  });
 
   const userStickerTemplateIds = JSON.parse(
     sessionStorage.getItem('userStickerTemplateIds')
   );
 
   userStickerTemplateIds.forEach(id => {
-    let stickerName = stickerNames[stickerTemplates.indexOf(id)];
+    let stickerImgName = stickerNames[stickerTemplates.indexOf(id)];
+    let name = names[stickerTemplates.indexOf(id)];
     assets.innerHTML += `<div class="asset">
-            <img src="./imgs/${stickerName}.png" alt="${stickerName}" />
-            <p>${stickerName}</p>
+            <img src="./imgs/${stickerImgName}.png" alt="${name}" />
+            <p>${name}</p>
           </div>`;
   });
 } else {

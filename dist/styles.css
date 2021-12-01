@@ -20,6 +20,7 @@ html {
   --m-aqua: #2dca86;
   --m-aqua-H: #29b87b;
 
+  --m-aqua-A1: rgba(60, 212, 147, 0.1);
   --m-aqua-A2: rgba(60, 212, 147, 0.2);
 
   --bar-back: #a5ebcd;
@@ -419,19 +420,22 @@ ul {
   align-items: center;
   margin: 1rem;
   text-align: center;
-  box-shadow: var(--shadow-white-1);
-  border-radius: var(--border-radius-3);
+  width: 12rem;
+  box-shadow: var(--shadow-aqua-2);
+  border-radius: var(--border-radius-1);
+  background-color: var(--m-aqua-A2);
 }
 
 .assets div > img {
   height: auto;
-  width: 12rem;
+  width: 90%;
 }
 
 .assets div > p {
   font-size: var(--font-size-1-3);
   text-transform: capitalize;
   margin-bottom: 1rem;
+  font-weight: 500;
 }
 
 /* leaderboard */

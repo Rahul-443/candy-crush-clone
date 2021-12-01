@@ -133,6 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('login');
   const enterBtn = document.getElementById('enter');
   const assetWrapper = document.getElementById('asset-wrapper');
+  const rankText = document.getElementById('rank');
+  const prevScoreText = document.getElementById('score-prev');
+  let prevScore;
+  let loggedIn = false;
 
   let randomImg = getRandImg();
   let lastImg = gumballs[randomImg];
@@ -144,6 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   if (sessionStorage.getItem('userLoggedIn')) {
+    loggedIn = true;
     sectionLogin.style.display = 'none';
     userAddress = sessionStorage.getItem('userAddress');
     loginBtn.textContent = userAddress;
@@ -152,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ...JSON.parse(sessionStorage.getItem('userStickerTemplateIds'))
     );
     chancesLeft = sessionStorage.getItem('chancesLeft');
+    prevScore = sessionStorage.getItem('prevScore');
     setChances();
     randomizeGumballs();
   }
@@ -250,6 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
         checkForRowOfThree();
       }, 100);
     }
+    fetchUserScores();
   }
 
   function getRandTempId(templateIds) {
@@ -435,33 +442,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const movesLeftText = document.getElementById('moves-left');
       if (movesLeft >= 1) {
+        if (movesLeft > 28) {
+          //remove chances when user has started playing
+          updateChance();
+        }
         movesLeftText.textContent = movesLeft.toString();
       } else {
-        chancesLeft -= 1;
-        sessionStorage.setItem('chancesLeft', chancesLeft);
-
-        var userData = {
-          user_id: userAddress,
-          chances_left: chancesLeft,
-          score: score
-        };
-        let formBody = [];
-        for (let property in userData) {
-          let encodedKey = encodeURIComponent(property);
-          let encodedVal = encodeURIComponent(userData[property]);
-          formBody.push(`${encodedKey}=${encodedVal}`);
-        }
-        formBody = formBody.join('&');
-        fetch(`${zanyGumballsSite}/save_score`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-          },
-          body: formBody
-        })
-          .then(response => response.json())
-          .then(data => console.log(data));
-
+        saveScore();
         if (chancesLeft > 0) {
           let gameResTime = 5;
           const interval = document.getElementById('interval');
@@ -639,6 +626,58 @@ document.addEventListener('DOMContentLoaded', () => {
     checkForRowOfThree();
   }
 
+  function saveScore() {
+    let userData = {
+      user_id: userAddress,
+      score: score
+    };
+    let formBody = [];
+    for (let property in userData) {
+      let encodedKey = encodeURIComponent(property);
+      let encodedVal = encodeURIComponent(userData[property]);
+      formBody.push(`${encodedKey}=${encodedVal}`);
+    }
+    formBody = formBody.join('&');
+    fetch(`${zanyGumballsSite}/save_score`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      },
+      body: formBody
+    })
+      .then(response => response.json())
+      .then(data => console.log(data));
+
+    sessionStorage.setItem('prevScore', score);
+  }
+
+  function updateChance() {
+    chancesLeft -= 1;
+
+    let userData = {
+      user_id: userAddress,
+      chances_left: chancesLeft
+    };
+    let formBody = [];
+    for (let property in userData) {
+      let encodedKey = encodeURIComponent(property);
+      let encodedVal = encodeURIComponent(userData[property]);
+      formBody.push(`${encodedKey}=${encodedVal}`);
+    }
+    formBody = formBody.join('&');
+    fetch(`${zanyGumballsSite}/update_chance`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      },
+      body: formBody
+    })
+      .then(response => response.json())
+      .then(data => console.log(data));
+
+    sessionStorage.setItem('chancesLeft', chancesLeft);
+  }
+
   function setScore(i) {
     score += i;
     let width = score * 0.06;
@@ -669,5 +708,44 @@ document.addEventListener('DOMContentLoaded', () => {
       cbLights[cbLen - i].style.display = 'none';
     }
     cbLen = chancesLeft;
+  }
+
+  function fetchUserScores() {
+    fetch(`${zanyGumballsSite}/users`)
+      .then(response => response.json())
+      .then(data => sortByRank(data));
+  }
+
+  function sortByRank(userData) {
+    let userByRank = [];
+    const userDataKeys = Object.keys(userData);
+    let scores = [];
+    userDataKeys.forEach(userKey => {
+      scores.push(userData[userKey]['score']);
+    });
+    let scoresOld = [];
+    scoresOld.push(...scores);
+    scores.sort(function(a, b) {
+      return b - a;
+    });
+
+    scores.forEach(score => {
+      let oldScoreIndex = scoresOld.indexOf(score);
+      let user = userDataKeys[oldScoreIndex];
+      userByRank.push(user);
+      scoresOld[oldScoreIndex] = '';
+    });
+
+    sessionStorage.setItem('userByRank', JSON.stringify(userByRank));
+    sessionStorage.setItem('scores', JSON.stringify(scores));
+
+    if (userByRank.includes(userAddress)) {
+      let userIndex = userByRank.indexOf(userAddress);
+
+      rankText.textContent = (userIndex + 1).toString();
+      prevScoreText.textContent = scores[userIndex].toString();
+    } else {
+      rankText.textContent = 'No Rank';
+    }
   }
 });

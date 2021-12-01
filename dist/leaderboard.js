@@ -1,35 +1,17 @@
 const leaderboard = document.querySelector('.leaderboard');
 const btnLogin = document.getElementById('login');
-const localHost = 'http://localhost:8080';
-const zanyGumballsSite = 'https://zany-gumballs.herokuapp.com';
+const btnMenu = document.getElementById('btn-menu');
+const menu = document.querySelector('.links');
 
 if (sessionStorage.getItem('userAddress') !== null) {
   btnLogin.textContent = sessionStorage.getItem('userAddress');
+  btnMenu.addEventListener('click', () => {
+    menu.classList.toggle('show-links');
+  });
 
-  fetch(`${zanyGumballsSite}/users`)
-    .then(response => response.json())
-    .then(data => sortByRank(data));
-
-  function sortByRank(userData) {
-    let userByRank = [];
-    const userDataKeys = Object.keys(userData);
-    let scores = [];
-    userDataKeys.forEach(userKey => {
-      scores.push(userData[userKey]['score']);
-    });
-    scoresOld = [];
-    scoresOld.push(...scores);
-    scores.sort(function(a, b) {
-      return b - a;
-    });
-
-    scores.forEach(score => {
-      let oldScoreIndex = scoresOld.indexOf(score);
-      let user = userDataKeys[oldScoreIndex];
-      userByRank.push(user);
-      scoresOld[oldScoreIndex] = '';
-    });
-
+  if (sessionStorage.getItem('userByRank') !== null) {
+    let userByRank = JSON.parse(sessionStorage.getItem('userByRank'));
+    let scores = JSON.parse(sessionStorage.getItem('scores'));
     let i = 1;
     userByRank.forEach(user => {
       leaderboard.innerHTML += `<tr>
@@ -39,7 +21,6 @@ if (sessionStorage.getItem('userAddress') !== null) {
             </tr>`;
       i++;
     });
-    console.log(leaderboard.innerHTML);
   }
 } else {
   window.location.href = zanyGumballsSite;

@@ -34,7 +34,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.post('/save_score', function(req, res) {
   const user_id = req.body.user_id;
-  const chances_left = req.body.chances_left;
   const score = req.body.score;
 
   fs.readFile(path.join(__dirname, 'scores.json'), 'utf-8', function(
@@ -45,17 +44,50 @@ app.post('/save_score', function(req, res) {
       console.log(err);
     } else {
       data = JSON.parse(data);
-      const score_new = {
-        chances_left: chances_left,
+      const user_data_new = {
+        chances_left: data[user_id]['chances_left'],
         score: score
       };
-      if (data.hasOwnProperty(user_id)) {
-        score_new['chances_left'] = data[user_id]['chances_left'] - 1;
-      } else {
-        score_new['chances_left'] = 4;
+      if (user_data_new['score'] > -1) {
+        data[user_id] = user_data_new;
+        let sData = JSON.stringify(data);
+        fs.writeFile(
+          path.join(__dirname, 'scores.json'),
+          sData,
+          'utf-8',
+          function(err) {
+            console.log(err);
+          }
+        );
+        res.send(JSON.stringify(data[user_id]));
       }
-      if (score_new['chances_left'] > -1) {
-        data[user_id] = score_new;
+    }
+  });
+});
+
+app.post('/update_chance', function(req, res) {
+  const user_id = req.body.user_id;
+  const chances_left = req.body.chances_left;
+
+  fs.readFile(path.join(__dirname, 'scores.json'), 'utf-8', function(
+    err,
+    data
+  ) {
+    if (err) {
+      console.log(err);
+    } else {
+      data = JSON.parse(data);
+      const user_data_new = {
+        chances_left: chances_left,
+        score: data[user_id]['score']
+      };
+      if (data.hasOwnProperty(user_id)) {
+        user_data_new['chances_left'] = data[user_id]['chances_left'] - 1;
+      } else {
+        user_data_new['chances_left'] = 4;
+      }
+      if (user_data_new['chances_left'] > -1) {
+        data[user_id] = user_data_new;
         let sData = JSON.stringify(data);
         fs.writeFile(
           path.join(__dirname, 'scores.json'),
