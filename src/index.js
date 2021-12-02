@@ -4,6 +4,25 @@ import { ExplorerApi, RpcApi } from 'atomicassets';
 
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.querySelector('.grid');
+  const collection_name = 'zanygumballs';
+  const scoreTexts = document.getElementsByClassName('score');
+  const zanyBar = document.getElementById('progress-front');
+
+  const sectionLogin = document.getElementById('section-login');
+  const menuButton = document.getElementById('btn-menu');
+  const menu = document.querySelector('.links');
+  const chanceBar = document.getElementById('chance-bar');
+  const cbLights = chanceBar.getElementsByClassName('chnc');
+  let cbLen = cbLights.length;
+
+  const chancesLeftTexts = document.getElementsByClassName('chances-left');
+
+  const loginResult = document.getElementById('login-result');
+  const loginBtn = document.getElementById('login');
+  const enterBtn = document.getElementById('enter');
+  const assetWrapper = document.getElementById('asset-wrapper');
+  const rankText = document.getElementById('rank');
+  const prevScoreText = document.getElementById('score-prev');
   const width = 8;
   let squares;
   let userStickerTemplateIds;
@@ -11,7 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let score = 0;
   let movesLeft = 30;
   let chancesLeft = 5;
-  const collection_name = 'zanygumballs';
+  let prevScore;
+  let loggedIn = false;
+
+  let randomImg = getRandImg();
+  let lastImg = gumballs[randomImg];
   let userAddress;
   const localHost = 'http://localhost:8080';
   const zanyGumballsSite = 'https://zany-gumballs.herokuapp.com';
@@ -119,33 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'bop'
   ];
 
-  const scoreBar = document.getElementById('score');
-  const zanyBar = document.getElementById('progress-front');
-
-  const sectionLogin = document.getElementById('section-login');
-  const menuButton = document.getElementById('btn-menu');
-  const menu = document.querySelector('.links');
-  const chanceBar = document.getElementById('chance-bar');
-  const cbLights = chanceBar.getElementsByClassName('chnc');
-  let cbLen = cbLights.length;
-
-  const chancesLeftTexts = document.getElementsByClassName('chances-left');
-
-  const loginResult = document.getElementById('login-result');
-  const loginBtn = document.getElementById('login');
-  const enterBtn = document.getElementById('enter');
-  const assetWrapper = document.getElementById('asset-wrapper');
-  const rankText = document.getElementById('rank');
-  const prevScoreText = document.getElementById('score-prev');
-  let prevScore;
-  let loggedIn = false;
-
-  let randomImg = getRandImg();
-  let lastImg = gumballs[randomImg];
-
   menuButton.addEventListener('click', () => {
-    console.log(menu);
-
     menu.classList.toggle('show-links');
   });
 
@@ -733,13 +730,17 @@ document.addEventListener('DOMContentLoaded', () => {
     score += i;
     let width = score * 0.06;
     zanyBar.style.width = width + 'rem';
-    scoreBar.textContent = score;
+    [...scoreTexts].forEach(scoreText => {
+      scoreText.textContent = score;
+    });
   }
 
   function resetScore() {
     score = 0;
     zanyBar.style.width = 0 + 'rem';
-    scoreBar.textContent = 0;
+    [...scoreTexts].forEach(scoreText => {
+      scoreText.textContent = score;
+    });
   }
 
   function removeOneChance() {
