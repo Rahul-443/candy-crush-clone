@@ -166,8 +166,8 @@ setInterval(function() {
     } else {
       data = JSON.parse(data);
       for (let property in data) {
-        property['chances_left'] = 5;
-        property['score'] = 0;
+        data[property]['chances_left'] = 5;
+        data[property]['score'] = 0;
       }
       data = JSON.stringify(data);
       fs.writeFile(path.join(__dirname, 'scores.json'), data, 'utf-8', function(
@@ -177,7 +177,7 @@ setInterval(function() {
       });
     }
   });
-}, 86400000);
+}, 24 * 60 * 60 * 1000);
 
 app.set('port', process.env.PORT || 8080);
 
