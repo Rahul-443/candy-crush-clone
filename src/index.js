@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let userAddress;
   const localHost = 'http://localhost:8080';
   const zanyGumballsSite = 'https://zany-gumballs.herokuapp.com';
+  let squareToSwap = '';
+  let squareToSwapWith = '';
 
   const stickerTemplates = [
     '330504',
@@ -254,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
         checkForColumnOfFour();
         checkForColumnOfThree();
         checkForRowOfThree();
-      }, 100);
+      }, 250);
     }
     fetchUserScores();
   }
@@ -327,13 +329,18 @@ document.addEventListener('DOMContentLoaded', () => {
     squares.forEach(square => square.addEventListener('dragenter', dragEnter));
     squares.forEach(square => square.addEventListener('dragleave', dragLeave));
     squares.forEach(square => square.addEventListener('drop', drop));
+    squares.forEach(square => square.addEventListener('click', selectSquare));
 
     function dragStart() {
+      swapStart.call(this);
+
+      console.log(this.id, 'dragstart');
+    }
+
+    function swapStart() {
       imgBeingDragged = this.querySelector('.img-gumball').getAttribute('src');
       ibdAlt = this.querySelector('.img-gumball').getAttribute('alt');
       squareIdBeingDragged = parseInt(this.id);
-
-      console.log(this.id, 'dragstart');
     }
 
     function dragOver(e) {
@@ -352,7 +359,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function drop(e) {
       e.preventDefault();
+      swapEnd.call(this);
 
+      console.log(this.id, 'drop');
+      // TODO: Bug - if gb can fit in pattern it gets dropped;
+    }
+
+    function swapEnd() {
       squareIdBeingReplaced = parseInt(this.id);
       imgBeingReplaced = this.querySelector('.img-gumball').getAttribute('src');
       ibrAlt = this.querySelector('.img-gumball').getAttribute('alt');
@@ -475,12 +488,27 @@ document.addEventListener('DOMContentLoaded', () => {
           location.reload();
         }
       }
-      console.log(this.id, 'drop');
-      // TODO: Bug - if gb can fit in pattern it gets dropped;
     }
 
     function dragEnd() {
       console.log(this.id, 'dragend');
+    }
+
+    function selectSquare() {
+      console.log(this.id, 'clicked');
+      if (squareToSwap === '') {
+        squareToSwap = this.id;
+        this.style.backgroundColor = 'aquamarine';
+        swapStart.call(this);
+      } else {
+        squareToSwapWith = this.id;
+        this.style.backgroundColor = 'goldenrod';
+        swapEnd.call(this);
+        squares[squareToSwap].style.backgroundColor = '';
+        squares[squareToSwapWith].style.backgroundColor = '';
+        squareToSwap = '';
+        squareToSwapWith = '';
+      }
     }
   }
 
@@ -524,11 +552,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 .getAttribute('alt') === decidedGumball && !isBlank
           )
         ) {
-          setScore(3);
           rowOfThree.forEach(index => {
-            squares[index].innerHTML =
-              '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
+            squares[index].style.backgroundColor = 'goldenrod';
           });
+          setTimeout(function() {
+            setScore(3);
+            rowOfThree.forEach(index => {
+              squares[index].style.backgroundColor = '';
+              squares[index].innerHTML =
+                '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
+            });
+          }, 150);
         }
       }
     }
@@ -550,11 +584,17 @@ document.addEventListener('DOMContentLoaded', () => {
               decidedGumball && !isBlank
         )
       ) {
-        setScore(3);
         columnOfThree.forEach(index => {
-          squares[index].innerHTML =
-            '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
+          squares[index].style.backgroundColor = 'goldenrod';
         });
+        setScore(3);
+        setTimeout(function() {
+          columnOfThree.forEach(index => {
+            squares[index].innerHTML =
+              '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
+            squares[index].style.backgroundColor = '';
+          });
+        }, 150);
       }
     }
   }
@@ -583,12 +623,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 .getAttribute('alt') === decidedGumball && !isBlank
           )
         ) {
-          setScore(4);
           rowOfFour.forEach(index => {
-            squares[index];
-            squares[index].innerHTML =
-              '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
+            squares[index].style.backgroundColor = 'goldenrod';
           });
+          setTimeout(function() {
+            setScore(4);
+            rowOfFour.forEach(index => {
+              squares[index].innerHTML =
+                '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
+              squares[index].style.backgroundColor = '';
+            });
+          }, 150);
         }
       }
     }
@@ -610,11 +655,17 @@ document.addEventListener('DOMContentLoaded', () => {
               decidedGumball && !isBlank
         )
       ) {
-        setScore(4);
         columnOfFour.forEach(index => {
-          squares[index].innerHTML =
-            '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
+          squares[index].style.backgroundColor = 'goldenrod';
         });
+        setTimeout(function() {
+          setScore(4);
+          columnOfFour.forEach(index => {
+            squares[index].innerHTML =
+              '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
+            squares[index].style.backgroundColor = '';
+          });
+        }, 150);
       }
     }
   }
