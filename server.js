@@ -20,11 +20,11 @@ app.use(function(req, res, next) {
     'Access-Control-Allow-Methods',
     'GET, POST, OPTIONS, PUT, PATCH, DELETE'
   );
+  res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'X-Requested-With,content-type'
+    'Accept,Origin,Content-Type,X-LS-CORS-Template,X-LS-Auth-Token,X-LS-Auth-User-Token,Content-Type,X-LS-Sync-Result,X-LS-Sync-Token,X-Requested-With,content-type'
   );
-  res.setHeader('Access-Control-Allow-Credentials', true);
 
   next();
 });
