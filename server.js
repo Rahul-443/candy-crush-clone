@@ -137,6 +137,7 @@ app.get('/users/:user_id', function(req, res) {
             console.log(err);
           }
         );
+        res.set('Access-Control-Allow-Origin', zanyGumballsSite);
         res.send(data[user_addr]);
       }
     }
