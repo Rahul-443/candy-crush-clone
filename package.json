@@ -35,6 +35,7 @@
     "@waxio/waxjs": "^1.0.4",
     "atomicassets": "^1.4.2",
     "express": "^4.17.1",
+    "firebase": "^9.6.0",
     "node-fetch": "^2.6.6",
     "regenerator-runtime": "^0.13.9"
   }

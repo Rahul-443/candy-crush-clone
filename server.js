@@ -157,7 +157,7 @@ app.get('/users', function(req, res) {
   });
 });
 
-setInterval(function() {
+app.post('/close_game', function(req, res) {
   fs.readFile(path.join(__dirname, 'scores.json'), 'utf-8', function(
     err,
     data
@@ -176,9 +176,10 @@ setInterval(function() {
       ) {
         console.log(err);
       });
+      res.send('game closed');
     }
   });
-}, 24 * 60 * 60 * 1000);
+});
 
 app.set('port', process.env.PORT || 8080);
 
