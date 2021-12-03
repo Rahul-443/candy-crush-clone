@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let lastImg = gumballs[randomImg];
   let userAddress;
   const localHost = 'http://localhost:8080';
+  const ipHost = 'http://192.168.43.118:8080';
   const zanyGumballsSite = 'https://zany-gumballs.herokuapp.com';
   let squareToSwap = '';
   let squareToSwapWith = '';

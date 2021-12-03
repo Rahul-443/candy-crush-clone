@@ -11,6 +11,7 @@ const { ExplorerApi, RpcApi } = require('atomicassets');
 var app = express();
 
 const localHost = 'http://localhost:8080';
+const ipHost = 'http://192.168.43.118:8080';
 const zanyGumballsSite = 'https://zany-gumballs.herokuapp.com';
 
 app.use(function(req, res, next) {
