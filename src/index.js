@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const userAccount = await wax.login();
       userAddress = wax.userAccount;
       enterBtn.textContent = userAddress;
-      fetch(`${zanyGumballsSite}/users/${userAddress}`)
+      fetch(`${zanyGumballsSite}/users/${userAddress}`, { mode: 'cors' })
         .then(response => response.json())
         .then(data => {
           console.log(data);
@@ -687,13 +687,17 @@ document.addEventListener('DOMContentLoaded', () => {
       formBody.push(`${encodedKey}=${encodedVal}`);
     }
     formBody = formBody.join('&');
-    fetch(`${zanyGumballsSite}/save_score`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+    fetch(
+      `${zanyGumballsSite}/save_score`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: formBody
       },
-      body: formBody
-    })
+      { mode: 'cors' }
+    )
       .then(response => response.json())
       .then(data => console.log(data));
 
@@ -714,13 +718,17 @@ document.addEventListener('DOMContentLoaded', () => {
       formBody.push(`${encodedKey}=${encodedVal}`);
     }
     formBody = formBody.join('&');
-    fetch(`${zanyGumballsSite}/update_chance`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+    fetch(
+      `${zanyGumballsSite}/update_chance`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: formBody
       },
-      body: formBody
-    })
+      { mode: 'cors' }
+    )
       .then(response => response.json())
       .then(data => console.log(data));
 
@@ -764,7 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function fetchUserScores() {
-    fetch(`${zanyGumballsSite}/users`)
+    fetch(`${zanyGumballsSite}/users`, { mode: 'cors' })
       .then(response => response.json())
       .then(data => sortByRank(data));
   }
