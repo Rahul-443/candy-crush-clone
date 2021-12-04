@@ -43,16 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const zanyGumballsSite = 'http://zany-gumballs.herokuapp.com';
   let squareToSwap = '';
   let squareToSwapWith = '';
-  const firebaseConfig = {
-    apiKey: 'AIzaSyBe1CQlVamPQSYOmguNTsvqNvssUvN-8xU',
-    authDomain: 'zany-gumballs.firebaseapp.com',
-    databaseURL: 'https://zany-gumballs-default-rtdb.firebaseio.com',
-    projectId: 'zany-gumballs',
-    storageBucket: 'zany-gumballs.appspot.com',
-    messagingSenderId: '172092464993',
-    appId: '1:172092464993:web:c9f1c5267e4a06c8be6f20',
-    measurementId: 'G-5EPL8QD39J'
-  };
 
   const stickerTemplates = [
     '330504',

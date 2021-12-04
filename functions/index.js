@@ -8,10 +8,9 @@ exports.saveScore = functions.https.onRequest(async (req, res) => {
   const score = req.body.score;
   const ref = admin.database.ref(user_id);
 
-  ref.on('value', (snapshot) => {
-    const userData = snapshot.val();
-  }, (errorObject) => {
-    console.log('The read failed: ' + errorObject.name);
-    
+  ref.update({
+    score: score
   });
+
+  res.json({ score: score });
 });
