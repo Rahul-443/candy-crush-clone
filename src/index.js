@@ -2,7 +2,11 @@ import * as waxjs from '@waxio/waxjs/dist';
 import 'regenerator-runtime/runtime';
 import { ExplorerApi, RpcApi } from 'atomicassets';
 import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 import { getAnalytics } from 'firebase/analytics';
+import { getDatabase, ref, onValue } from 'firebase/database';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { firebaseConfig } from './config';
 
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.querySelector('.grid');
@@ -43,6 +47,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const zanyGumballsSite = 'http://zany-gumballs.herokuapp.com';
   let squareToSwap = '';
   let squareToSwapWith = '';
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const analytics = getAnalytics(app);
+  const database = getDatabase(app);
+  const functions = getFunctions(app);
+
+  const saveScoreFunction = httpsCallable(functions, 'saveScore');
+  const removeOneChanceFunction = httpsCallable(functions, 'removeOneChance');
+  const addNewUserFunction = httpsCallable(functions, 'addNewUser');
 
   const stickerTemplates = [
     '330504',
@@ -145,8 +159,13 @@ document.addEventListener('DOMContentLoaded', () => {
     'bop'
   ];
 
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  signInAnonymously(auth)
+    .then(() => {
+      console.log('signed in');
+    })
+    .catch(error => {
+      console.log(error.message);
+    });
 
   menuButton.addEventListener('click', () => {
     menu.classList.toggle('show-links');
@@ -176,14 +195,31 @@ document.addEventListener('DOMContentLoaded', () => {
       const userAccount = await wax.login();
       userAddress = wax.userAccount;
       enterBtn.textContent = userAddress;
-      fetch(`${zanyGumballsSite}/users/${userAddress}`, { mode: 'cors' })
-        .then(response => response.json())
-        .then(data => {
-          console.log(data);
-          chancesLeft = data.chances_left;
-          sessionStorage.setItem('chancesLeft', chancesLeft);
-          setChances();
-        });
+
+      const userDataRef = ref(database, userAddress);
+      onValue(userDataRef, snapshot => {
+        if (!snapshot.exists()) {
+          addNewUserFunction({})
+            .then(result => {
+              console.log(result);
+              chancesLeft = result.chances_left;
+            })
+            .catch(error => console.log(error));
+        } else {
+          const userData = snapshot.val();
+          chancesLeft = userData.chances_left;
+        }
+      });
+      sessionStorage.setItem('chancesLeft', chancesLeft);
+      // fetch(`${zanyGumballsSite}/users/${userAddress}`, { mode: 'cors' })
+      //   .then(response => response.json())
+      //   .then(data => {
+      //     console.log(data);
+      //     chancesLeft = data.chances_left;
+      //     sessionStorage.setItem('chancesLeft', chancesLeft);
+      //     setChances();
+      //   });
+      setChances();
       getGumballs();
     } catch (e) {
       console.log(e);
@@ -682,62 +718,76 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function saveScore() {
     let userData = {
-      user_id: userAddress,
+      user_id: userAddress.replace(/\./g, '_'),
       score: score
     };
-    let formBody = [];
-    for (let property in userData) {
-      let encodedKey = encodeURIComponent(property);
-      let encodedVal = encodeURIComponent(userData[property]);
-      formBody.push(`${encodedKey}=${encodedVal}`);
-    }
-    formBody = formBody.join('&');
-    fetch(
-      `${zanyGumballsSite}/save_score`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-        },
-        body: formBody
-      },
-      { mode: 'cors' }
-    )
-      .then(response => response.json())
-      .then(data => console.log(data));
 
-    sessionStorage.setItem('prevScore', score);
+    saveScoreFunction(userData)
+      .then(result => {
+        console.log(result.score);
+        sessionStorage.setItem('prevScore', result.score);
+      })
+      .catch(error => {
+        console.log(error.message);
+      });
+    // let formBody = [];
+    // for (let property in userData) {
+    //   let encodedKey = encodeURIComponent(property);
+    //   let encodedVal = encodeURIComponent(userData[property]);
+    //   formBody.push(`${encodedKey}=${encodedVal}`);
+    // }
+    // formBody = formBody.join('&');
+    // fetch(
+    //   `${zanyGumballsSite}/save_score`,
+    //   {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+    //     },
+    //     body: formBody
+    //   },
+    //   { mode: 'cors' }
+    // )
+    //   .then(response => response.json())
+    //   .then(data => console.log(data));
   }
 
   function updateChance() {
     chancesLeft -= 1;
 
     let userData = {
-      user_id: userAddress,
+      user_id: userAddress.replace('/./g', '_'),
       chances_left: chancesLeft
     };
-    let formBody = [];
-    for (let property in userData) {
-      let encodedKey = encodeURIComponent(property);
-      let encodedVal = encodeURIComponent(userData[property]);
-      formBody.push(`${encodedKey}=${encodedVal}`);
-    }
-    formBody = formBody.join('&');
-    fetch(
-      `${zanyGumballsSite}/update_chance`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-        },
-        body: formBody
-      },
-      { mode: 'cors' }
-    )
-      .then(response => response.json())
-      .then(data => console.log(data));
 
-    sessionStorage.setItem('chancesLeft', chancesLeft);
+    removeOneChanceFunction(userData)
+      .then(result => {
+        console.log(result.chances_left);
+        sessionStorage.setItem('chancesLeft', result.chances_left);
+      })
+      .catch(error => {
+        console.log(error.message);
+      });
+    // let formBody = [];
+    // for (let property in userData) {
+    //   let encodedKey = encodeURIComponent(property);
+    //   let encodedVal = encodeURIComponent(userData[property]);
+    //   formBody.push(`${encodedKey}=${encodedVal}`);
+    // }
+    // formBody = formBody.join('&');
+    // fetch(
+    //   `${zanyGumballsSite}/update_chance`,
+    //   {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+    //     },
+    //     body: formBody
+    //   },
+    //   { mode: 'cors' }
+    // )
+    //   .then(response => response.json())
+    //   .then(data => console.log(data));
   }
 
   function setScore(i) {
@@ -777,9 +827,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function fetchUserScores() {
-    fetch(`${zanyGumballsSite}/users`, { mode: 'cors' })
-      .then(response => response.json())
-      .then(data => sortByRank(data));
+    const usersDataRef = ref(database);
+    onValue(usersDataRef, snapshot => {
+      const data = snapshot.val();
+      sortByRank(data);
+    });
+    // fetch(`${zanyGumballsSite}/users`, { mode: 'cors' })
+    //   .then(response => response.json())
+    //   .then(data => sortByRank(data));
   }
 
   function sortByRank(userData) {
