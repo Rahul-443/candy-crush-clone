@@ -8,9 +8,13 @@ const isProduction = process.env.NODE_ENV == 'production';
 const stylesHandler = 'style-loader';
 
 const config = {
-  entry: ['regenerator-runtime/runtime.js', './src/index.js'],
+  entry: {
+    main: ['regenerator-runtime/runtime.js', './src/index.js'],
+    assets: './src/assets.js',
+    leaderboard: './src/leaderboard.js'
+  },
   output: {
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'public')
   },
   plugins: [
     // Add your plugins here

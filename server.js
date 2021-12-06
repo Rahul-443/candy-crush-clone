@@ -15,7 +15,7 @@ const ipHost = 'http://192.168.43.118:8080';
 const zanyGumballsSite = 'http://zany-gumballs.herokuapp.com';
 
 app.use(function(req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', zanyGumballsSite);
+  res.setHeader('Access-Control-Allow-Origin', localHost);
   res.setHeader(
     'Access-Control-Allow-Methods',
     'GET, POST, OPTIONS, PUT, PATCH, DELETE'
@@ -29,7 +29,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.use(express.static(path.join(__dirname, 'dist')));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -6,7 +6,7 @@ admin.initializeApp();
 exports.saveScore = functions.https.onCall((data, context) => {
   const userId = data.user_id;
   const score = data.score;
-  const ref = admin.database.ref(userId);
+  const ref = admin.database().ref(userId);
 
   if (!context.auth) {
     throw new functions.https.HttpsError(
@@ -31,7 +31,7 @@ exports.saveScore = functions.https.onCall((data, context) => {
 
 exports.removeOneChance = functions.https.onCall((data, context) => {
   const userId = data.user_id;
-  const ref = admin.database.ref(userId);
+  const ref = admin.database().ref(userId);
 
   if (!context.auth) {
     throw new functions.https.HttpsError(
@@ -39,26 +39,35 @@ exports.removeOneChance = functions.https.onCall((data, context) => {
       'The function must be called while authenticated'
     );
   } else {
+    let chancesLeft;
     ref.on(
       'value',
       snapshot => {
-        let chancesLeft = snapshot.val().chances_left;
-        if (chancesLeft > -1) {
-          const chancesLeftObj = { chances_left: chancesLeft-- };
-          ref.update(chancesLeftObj);
-          return chancesLeftObj;
+        if (!snapshot.exists()) {
+          throw new functions.https.HttpsError(
+            'not-found',
+            `The user's data was not found`
+          );
+        } else {
+          chancesLeft = snapshot.val().chances_left;
         }
       },
       errorObject => {
         console.log(errorObject);
       }
     );
+    let cl = chancesLeft - 1;
+    if (cl > -1) {
+      const chancesLeftObj = { chances_left: cl };
+      ref.update(chancesLeftObj);
+      return chancesLeftObj;
+    }
   }
 });
 
-exports.addNewUser = functions.https.onRequest((data, context) => {
-  const userId = req.query.user_id;
-  const ref = admin.database.ref(userId);
+exports.addNewUser = functions.https.onCall((data, context) => {
+  const userId = data.user_id;
+  const ref = admin.database().ref(userId);
 
   if (!context.auth) {
     throw new functions.https.HttpsError(
@@ -66,6 +75,7 @@ exports.addNewUser = functions.https.onRequest((data, context) => {
       'The function must be called while authenticated'
     );
   } else {
+    let dataExists = true;
     ref.on(
       'value',
       snapshot => {
@@ -75,18 +85,22 @@ exports.addNewUser = functions.https.onRequest((data, context) => {
             'The user already exists in the database'
           );
         } else {
-          const newUserData = {
-            chances_left: 5,
-            score: 0
-          };
-          ref.set(newUserData);
-          return newUserData;
+          dataExists = false;
         }
       },
       errorObject => {
         console.log(errorObject);
       }
     );
+
+    if (!dataExists) {
+      const newUserData = {
+        chances_left: 5,
+        score: 0
+      };
+      ref.set(newUserData);
+      return newUserData;
+    }
   }
 });
 
@@ -94,21 +108,25 @@ exports.refreshGame = functions.pubsub
   .schedule('0 8 * * *')
   .timeZone('America/New_York')
   .onRun(context => {
-    const ref = admin.database.ref();
+    const ref = admin.database().ref();
+    let data;
 
     ref.on(
       'value',
       snapshot => {
-        snapshot.forEach(child => {
-          child.ref.update({
-            chances_left: 5,
-            score: 0
-          });
-        });
+        data = snapshot;
       },
       errorObject => {
         console.log(errorObject);
       }
     );
+
+    snapshot.forEach(child => {
+      child.ref.update({
+        chances_left: 5,
+        score: 0
+      });
+    });
+
     return null;
   });

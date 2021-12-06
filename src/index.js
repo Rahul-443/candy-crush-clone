@@ -7,6 +7,7 @@ import { getAnalytics } from 'firebase/analytics';
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { firebaseConfig } from './config';
+import { stickerNames, stickerTemplates } from './templateData';
 
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.querySelector('.grid');
@@ -36,128 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
   let score = 0;
   let movesLeft = 30;
   let chancesLeft = 5;
-  let prevScore;
-  let loggedIn = false;
-
   let randomImg = getRandImg();
   let lastImg = gumballs[randomImg];
   let userAddress;
-  const localHost = 'http://localhost:8080';
-  const ipHost = 'http://192.168.43.118:8080';
-  const zanyGumballsSite = 'http://zany-gumballs.herokuapp.com';
   let squareToSwap = '';
   let squareToSwapWith = '';
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
-  const analytics = getAnalytics(app);
-  const database = getDatabase(app);
-  const functions = getFunctions(app);
-
-  const saveScoreFunction = httpsCallable(functions, 'saveScore');
-  const removeOneChanceFunction = httpsCallable(functions, 'removeOneChance');
-  const addNewUserFunction = httpsCallable(functions, 'addNewUser');
-
-  const stickerTemplates = [
-    '330504',
-    '330501',
-    '330495',
-    '330490',
-    '330487',
-    '295563',
-    '295562',
-    '295561',
-    '295560',
-    '295559',
-    '295558',
-    '295557',
-    '254475',
-    '234211',
-    '119963',
-    '119799',
-    '112103',
-    '112098',
-    '112093',
-    '112091',
-    '112090',
-    '112089',
-    '112083',
-    '112076',
-    '110470',
-    '110469',
-    '110468',
-    '110467',
-    '110463',
-    '110456',
-    '110454',
-    '110449',
-    '110444',
-    '110419',
-    '110416',
-    '110413',
-    '110410',
-    '110406',
-    '110405',
-    '110404',
-    '110401',
-    '110395',
-    '110391',
-    '110389',
-    '110385',
-    '110384',
-    '110381',
-    '110379'
-  ];
-  const stickerNames = [
-    'clunk_bw',
-    'me_bw',
-    'link_bw',
-    'chum_bw',
-    'nan_bw',
-    'zim',
-    'rye',
-    'rafe',
-    'kay',
-    'ice',
-    'bae',
-    'abe',
-    'bop_saves_galaxy',
-    'mooch_bw',
-    'dave',
-    'eke_two_sides',
-    'pi',
-    'pam',
-    'kipp',
-    'grey',
-    'jill',
-    'holt',
-    'fuse',
-    'elle',
-    'yam',
-    'trish',
-    'stan',
-    'sis',
-    'shar',
-    'sauce',
-    'rush',
-    'roy',
-    'prim',
-    'nan',
-    'mooch',
-    'mike',
-    'me',
-    'link',
-    'kells',
-    'jet',
-    'hue',
-    'faith',
-    'eke',
-    'dapp',
-    'clunk',
-    'chum',
-    'bud',
-    'bop'
-  ];
 
   signInAnonymously(auth)
     .then(() => {
@@ -167,12 +54,18 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log(error.message);
     });
 
+  const analytics = getAnalytics(app);
+  const database = getDatabase(app);
+  const functions = getFunctions(app, 'us-central1');
+  const saveScoreFunction = httpsCallable(functions, 'saveScore');
+  const removeOneChanceFunction = httpsCallable(functions, 'removeOneChance');
+  const addNewUserFunction = httpsCallable(functions, 'addNewUser');
+
   menuButton.addEventListener('click', () => {
     menu.classList.toggle('show-links');
   });
 
   if (sessionStorage.getItem('userLoggedIn')) {
-    loggedIn = true;
     sectionLogin.style.display = 'none';
     userAddress = sessionStorage.getItem('userAddress');
     loginBtn.textContent = userAddress;
@@ -180,8 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
     userStickerTemplateIds.push(
       ...JSON.parse(sessionStorage.getItem('userStickerTemplateIds'))
     );
-    chancesLeft = sessionStorage.getItem('chancesLeft');
-    prevScore = sessionStorage.getItem('prevScore');
     setChances();
     randomizeGumballs();
   }
@@ -192,33 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function login() {
     try {
-      const userAccount = await wax.login();
+      await wax.login();
+      enterBtn.textContent = wax.userAccount;
       userAddress = wax.userAccount;
-      enterBtn.textContent = userAddress;
-
-      const userDataRef = ref(database, userAddress);
-      onValue(userDataRef, snapshot => {
-        if (!snapshot.exists()) {
-          addNewUserFunction({})
-            .then(result => {
-              console.log(result);
-              chancesLeft = result.chances_left;
-            })
-            .catch(error => console.log(error));
-        } else {
-          const userData = snapshot.val();
-          chancesLeft = userData.chances_left;
-        }
-      });
-      sessionStorage.setItem('chancesLeft', chancesLeft);
-      // fetch(`${zanyGumballsSite}/users/${userAddress}`, { mode: 'cors' })
-      //   .then(response => response.json())
-      //   .then(data => {
-      //     console.log(data);
-      //     chancesLeft = data.chances_left;
-      //     sessionStorage.setItem('chancesLeft', chancesLeft);
-      //     setChances();
-      //   });
+      userAddress = userAddress.replace(/\./g, '_');
       setChances();
       getGumballs();
     } catch (e) {
@@ -237,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function getGumballs() {
     try {
       const gumballs = await api.getAccountCollection(
-        userAddress,
+        wax.userAccount,
         collection_name
       );
       const templatesArray = gumballs['templates'];
@@ -297,7 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
         checkForRowOfThree();
       }, 250);
     }
-    fetchUserScores();
+
+    fillLeaderboard();
   }
 
   function getRandTempId(templateIds) {
@@ -401,7 +270,6 @@ document.addEventListener('DOMContentLoaded', () => {
       swapEnd.call(this);
 
       console.log(this.id, 'drop');
-      // TODO: Bug - if gb can fit in pattern it gets dropped;
     }
 
     function swapEnd() {
@@ -495,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const movesLeftText = document.getElementById('moves-left');
       if (movesLeft >= 1) {
         if (movesLeft > 28) {
-          //remove chances when user has started playing
+          //removing chances when user has started playing
           updateChance();
         }
         movesLeftText.textContent = movesLeft.toString();
@@ -523,8 +391,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }, 1000);
         } else {
-          alert('game over');
-          location.reload();
+          removeOneChance();
+          movesLeft = 0;
+          movesLeftText.textContent = movesLeft.toString();
+          randomizeGumballs();
+          resetScore();
         }
       }
     }
@@ -718,76 +589,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function saveScore() {
     let userData = {
-      user_id: userAddress.replace(/\./g, '_'),
+      user_id: userAddress,
       score: score
     };
 
     saveScoreFunction(userData)
       .then(result => {
-        console.log(result.score);
-        sessionStorage.setItem('prevScore', result.score);
+        console.log(result.data.score);
       })
       .catch(error => {
         console.log(error.message);
       });
-    // let formBody = [];
-    // for (let property in userData) {
-    //   let encodedKey = encodeURIComponent(property);
-    //   let encodedVal = encodeURIComponent(userData[property]);
-    //   formBody.push(`${encodedKey}=${encodedVal}`);
-    // }
-    // formBody = formBody.join('&');
-    // fetch(
-    //   `${zanyGumballsSite}/save_score`,
-    //   {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-    //     },
-    //     body: formBody
-    //   },
-    //   { mode: 'cors' }
-    // )
-    //   .then(response => response.json())
-    //   .then(data => console.log(data));
   }
 
   function updateChance() {
     chancesLeft -= 1;
 
     let userData = {
-      user_id: userAddress.replace('/./g', '_'),
-      chances_left: chancesLeft
+      user_id: userAddress
     };
 
     removeOneChanceFunction(userData)
       .then(result => {
-        console.log(result.chances_left);
-        sessionStorage.setItem('chancesLeft', result.chances_left);
+        console.log(result.data.chances_left);
       })
       .catch(error => {
         console.log(error.message);
       });
-    // let formBody = [];
-    // for (let property in userData) {
-    //   let encodedKey = encodeURIComponent(property);
-    //   let encodedVal = encodeURIComponent(userData[property]);
-    //   formBody.push(`${encodedKey}=${encodedVal}`);
-    // }
-    // formBody = formBody.join('&');
-    // fetch(
-    //   `${zanyGumballsSite}/update_chance`,
-    //   {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-    //     },
-    //     body: formBody
-    //   },
-    //   { mode: 'cors' }
-    // )
-    //   .then(response => response.json())
-    //   .then(data => console.log(data));
   }
 
   function setScore(i) {
@@ -816,6 +644,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function setChances() {
+    const userDataRef = ref(database, userAddress);
+    onValue(userDataRef, snapshot => {
+      if (!snapshot.exists()) {
+        addNewUserFunction({
+          user_id: userAddress
+        })
+          .then(result => {
+            console.log(result);
+            chancesLeft = result.data.chances_left;
+          })
+          .catch(error => console.log(error));
+      } else {
+        const result = snapshot.val();
+        chancesLeft = result.chances_left;
+      }
+    });
     [...chancesLeftTexts].forEach(element => {
       element.textContent = chancesLeft.toString();
     });
@@ -826,15 +670,14 @@ document.addEventListener('DOMContentLoaded', () => {
     cbLen = chancesLeft;
   }
 
-  function fetchUserScores() {
+  function fillLeaderboard() {
     const usersDataRef = ref(database);
     onValue(usersDataRef, snapshot => {
       const data = snapshot.val();
+      console.log(data);
+
       sortByRank(data);
     });
-    // fetch(`${zanyGumballsSite}/users`, { mode: 'cors' })
-    //   .then(response => response.json())
-    //   .then(data => sortByRank(data));
   }
 
   function sortByRank(userData) {
@@ -856,9 +699,6 @@ document.addEventListener('DOMContentLoaded', () => {
       userByRank.push(user);
       scoresOld[oldScoreIndex] = '';
     });
-
-    sessionStorage.setItem('userByRank', JSON.stringify(userByRank));
-    sessionStorage.setItem('scores', JSON.stringify(scores));
 
     if (userByRank.includes(userAddress)) {
       let userIndex = userByRank.indexOf(userAddress);

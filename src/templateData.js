@@ -1,9 +1,4 @@
-const assets = document.querySelector('.assets');
-const btnLogin = document.getElementById('login');
-const btnMenu = document.getElementById('btn-menu');
-const menu = document.querySelector('.links');
-
-const stickerTemplates = [
+export const stickerTemplates = [
   '330504',
   '330501',
   '330495',
@@ -53,7 +48,7 @@ const stickerTemplates = [
   '110381',
   '110379'
 ];
-const stickerNames = [
+export const stickerNames = [
   'clunk_bw',
   'me_bw',
   'link_bw',
@@ -104,7 +99,7 @@ const stickerNames = [
   'bop'
 ];
 
-const names = [
+export const names = [
   'Clunk CAIT Special',
   'Me CAIT Special',
   'Link CAIT Special',
@@ -154,25 +149,3 @@ const names = [
   'Bud',
   'Bop'
 ];
-
-if (sessionStorage.getItem('userAddress') !== null) {
-  btnLogin.textContent = sessionStorage.getItem('userAddress');
-  btnMenu.addEventListener('click', () => {
-    menu.classList.toggle('show-links');
-  });
-
-  const userStickerTemplateIds = JSON.parse(
-    sessionStorage.getItem('userStickerTemplateIds')
-  );
-
-  userStickerTemplateIds.forEach(id => {
-    let stickerImgName = stickerNames[stickerTemplates.indexOf(id)];
-    let name = names[stickerTemplates.indexOf(id)];
-    assets.innerHTML += `<div class="asset">
-            <img src="./imgs/${stickerImgName}.png" alt="${name}" />
-            <p>${name}</p>
-          </div>`;
-  });
-} else {
-  window.location.href = 'https://zany-gumballs.herokuapp.com';
-}
