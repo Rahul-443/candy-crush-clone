@@ -49,6 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const loggedIn = sessionStorage.getItem('userLoggedIn');
   const tpImgEl =
     '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
+  let bubblePopAudio = new Audio('./audios/bubble_pop_pitch_sharp2.mp3');
+  let plopAudio = new Audio('./audios/plop.mp3');
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
@@ -434,6 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
             i
           ].innerHTML = `<img src="./imgs/${gumballs[randImg]}.png" class="img-gumball" alt="${gumballs[randImg]}" />`;
         }
+        bubblePopAudio.play();
       }
     }
   }
@@ -457,6 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .getAttribute('alt') === decidedGumball && !isBlank
           )
         ) {
+          plopAudio.play();
           rowOfThree.forEach(index => {
             squares[index].style.backgroundColor = 'goldenrod';
           });
@@ -490,6 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
               decidedGumball && !isBlank
         )
       ) {
+        plopAudio.play();
         columnOfThree.forEach(index => {
           squares[index].style.backgroundColor = 'goldenrod';
         });
@@ -529,6 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .getAttribute('alt') === decidedGumball && !isBlank
           )
         ) {
+          plopAudio.play();
           rowOfFour.forEach(index => {
             squares[index].style.backgroundColor = 'goldenrod';
           });
@@ -562,6 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
               decidedGumball && !isBlank
         )
       ) {
+        plopAudio.play();
         columnOfFour.forEach(index => {
           squares[index].style.backgroundColor = 'goldenrod';
         });
