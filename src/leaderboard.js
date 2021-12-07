@@ -27,13 +27,11 @@ if (sessionStorage.getItem('userAddress') !== null) {
     menu.classList.toggle('show-links');
   });
 
-  if (sessionStorage.getItem('userByRank') !== null) {
-    const usersDataRef = ref(database);
-    onValue(usersDataRef, snapshot => {
-      const usersData = snapshot.val();
-      sortByRank(usersData);
-    });
-  }
+  const usersDataRef = ref(database);
+  onValue(usersDataRef, snapshot => {
+    const usersData = snapshot.val();
+    sortByRank(usersData);
+  });
 } else {
   window.location.href = zanyGumballsSite;
 }

@@ -40,7 +40,7 @@ exports.removeOneChance = functions.https.onCall((data, context) => {
     );
   } else {
     let chancesLeft;
-    ref.on(
+    ref.once(
       'value',
       snapshot => {
         if (!snapshot.exists()) {
@@ -50,18 +50,18 @@ exports.removeOneChance = functions.https.onCall((data, context) => {
           );
         } else {
           chancesLeft = snapshot.val().chances_left;
+          let cl = chancesLeft - 1;
+          if (cl > -1) {
+            const chancesLeftObj = { chances_left: cl };
+            ref.update(chancesLeftObj);
+            return chancesLeftObj;
+          }
         }
       },
       errorObject => {
         console.log(errorObject);
       }
     );
-    let cl = chancesLeft - 1;
-    if (cl > -1) {
-      const chancesLeftObj = { chances_left: cl };
-      ref.update(chancesLeftObj);
-      return chancesLeftObj;
-    }
   }
 });
 
@@ -75,8 +75,7 @@ exports.addNewUser = functions.https.onCall((data, context) => {
       'The function must be called while authenticated'
     );
   } else {
-    let dataExists = true;
-    ref.on(
+    ref.once(
       'value',
       snapshot => {
         if (snapshot.exists()) {
@@ -86,47 +85,40 @@ exports.addNewUser = functions.https.onCall((data, context) => {
           );
         } else {
           dataExists = false;
+          const newUserData = {
+            chances_left: 5,
+            score: 0
+          };
+          ref.set(newUserData);
+          return newUserData;
         }
       },
       errorObject => {
         console.log(errorObject);
       }
     );
-
-    if (!dataExists) {
-      const newUserData = {
-        chances_left: 5,
-        score: 0
-      };
-      ref.set(newUserData);
-      return newUserData;
-    }
   }
 });
 
 exports.refreshGame = functions.pubsub
-  .schedule('0 8 * * *')
-  .timeZone('America/New_York')
+  .schedule('every 24 hours')
   .onRun(context => {
     const ref = admin.database().ref();
-    let data;
 
-    ref.on(
+    ref.once(
       'value',
       snapshot => {
-        data = snapshot;
+        snapshot.forEach(child => {
+          child.ref.update({
+            chances_left: 5,
+            score: 0
+          });
+        });
       },
       errorObject => {
         console.log(errorObject);
       }
     );
-
-    snapshot.forEach(child => {
-      child.ref.update({
-        chances_left: 5,
-        score: 0
-      });
-    });
 
     return null;
   });

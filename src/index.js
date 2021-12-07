@@ -4,7 +4,7 @@ import { ExplorerApi, RpcApi } from 'atomicassets';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 import { getAnalytics } from 'firebase/analytics';
-import { getDatabase, ref, onValue } from 'firebase/database';
+import { getDatabase, ref, onValue, update } from 'firebase/database';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { firebaseConfig } from './config';
 import { stickerNames, stickerTemplates } from './templateData';
@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const collection_name = 'zanygumballs';
   const scoreTexts = document.getElementsByClassName('score');
   const zanyBar = document.getElementById('progress-front');
+  const movesLeftText = document.getElementById('moves-left');
 
   const sectionLogin = document.getElementById('section-login');
   const menuButton = document.getElementById('btn-menu');
@@ -36,12 +37,18 @@ document.addEventListener('DOMContentLoaded', () => {
   let gumballs = [];
   let score = 0;
   let movesLeft = 30;
-  let chancesLeft = 5;
+  let chancesLeft;
   let randomImg = getRandImg();
   let lastImg = gumballs[randomImg];
   let userAddress;
   let squareToSwap = '';
   let squareToSwapWith = '';
+  let initiated = true;
+  let setInitialPrevScore = true;
+  let prevScore = 0;
+  const loggedIn = sessionStorage.getItem('userLoggedIn');
+  const tpImgEl =
+    '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
@@ -65,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     menu.classList.toggle('show-links');
   });
 
-  if (sessionStorage.getItem('userLoggedIn')) {
+  if (loggedIn) {
     sectionLogin.style.display = 'none';
     userAddress = sessionStorage.getItem('userAddress');
     loginBtn.textContent = userAddress;
@@ -73,8 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     userStickerTemplateIds.push(
       ...JSON.parse(sessionStorage.getItem('userStickerTemplateIds'))
     );
-    setChances();
-    randomizeGumballs();
+    initGame();
   }
 
   const wax = new waxjs.WaxJS({
@@ -87,8 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
       enterBtn.textContent = wax.userAccount;
       userAddress = wax.userAccount;
       userAddress = userAddress.replace(/\./g, '_');
-      setChances();
-      getGumballs();
+      initGame();
     } catch (e) {
       console.log(e);
     }
@@ -359,45 +364,37 @@ document.addEventListener('DOMContentLoaded', () => {
           squareIdBeingDragged
         ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
       }
-
-      const movesLeftText = document.getElementById('moves-left');
       if (movesLeft >= 1) {
         if (movesLeft > 28) {
           //removing chances when user has started playing
-          updateChance();
+          removeOneChance();
         }
-        movesLeftText.textContent = movesLeft.toString();
       } else {
-        saveScore();
         if (chancesLeft > 0) {
-          let gameResTime = 5;
-          const interval = document.getElementById('interval');
-          console.log(chancesLeftTexts);
-          removeOneChance();
-          interval.style.display = 'grid';
-          const timer = document.getElementById('timer');
-          timer.textContent = gameResTime;
-          let gameResTimer = window.setInterval(() => {
-            if (gameResTime > 0) {
-              gameResTime--;
-              timer.textContent = gameResTime.toString();
-            } else {
-              interval.style.display = 'none';
-              movesLeft = 30;
-              resetScore();
-              randomizeGumballs();
-              movesLeftText.textContent = movesLeft.toString();
-              clearInterval(gameResTimer);
-            }
-          }, 1000);
+          movesLeft = 30;
         } else {
-          removeOneChance();
           movesLeft = 0;
-          movesLeftText.textContent = movesLeft.toString();
-          randomizeGumballs();
-          resetScore();
         }
+        let gameResTime = 5;
+        const interval = document.getElementById('interval');
+        interval.style.display = 'grid';
+        const timer = document.getElementById('timer');
+        timer.textContent = gameResTime;
+        let gameResTimer = window.setInterval(() => {
+          if (gameResTime > 0) {
+            gameResTime--;
+            timer.textContent = gameResTime.toString();
+          } else {
+            resetScore();
+            setPrevScoreText();
+            updateChancesText();
+            randomizeGumballs();
+            interval.style.display = 'none';
+            clearInterval(gameResTimer);
+          }
+        }, 1000);
       }
+      setMoves();
     }
 
     function dragEnd() {
@@ -430,9 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ) {
         if (i >= 8) {
           squares[i].innerHTML = squares[i - width].innerHTML;
-          squares[
-            i - width
-          ].innerHTML = `<img src="./imgs/transparent.png" class="img-gumball" alt="" />`;
+          squares[i - width].innerHTML = tpImgEl;
         } else if (i <= 7) {
           var randImg = getRandImg();
           squares[
@@ -466,11 +461,12 @@ document.addEventListener('DOMContentLoaded', () => {
             squares[index].style.backgroundColor = 'goldenrod';
           });
           setTimeout(function() {
-            setScore(3);
+            if (chancesLeft > -1) {
+              setScore(3);
+            }
             rowOfThree.forEach(index => {
               squares[index].style.backgroundColor = '';
-              squares[index].innerHTML =
-                '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
+              squares[index].innerHTML = tpImgEl;
             });
           }, 150);
         }
@@ -497,11 +493,12 @@ document.addEventListener('DOMContentLoaded', () => {
         columnOfThree.forEach(index => {
           squares[index].style.backgroundColor = 'goldenrod';
         });
-        setScore(3);
+        if (chancesLeft > -1) {
+          setScore(3);
+        }
         setTimeout(function() {
           columnOfThree.forEach(index => {
-            squares[index].innerHTML =
-              '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
+            squares[index].innerHTML = tpImgEl;
             squares[index].style.backgroundColor = '';
           });
         }, 150);
@@ -517,7 +514,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .getAttribute('alt');
       const isBlank =
         squares[i].querySelector('.img-gumball').getAttribute('alt') === '';
-
       if (
         !(
           (rowOfFour[0] + 1) % 8 === 0 ||
@@ -537,10 +533,11 @@ document.addEventListener('DOMContentLoaded', () => {
             squares[index].style.backgroundColor = 'goldenrod';
           });
           setTimeout(function() {
-            setScore(4);
+            if (chancesLeft > -1) {
+              setScore(4);
+            }
             rowOfFour.forEach(index => {
-              squares[index].innerHTML =
-                '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
+              squares[index].innerHTML = tpImgEl;
               squares[index].style.backgroundColor = '';
             });
           }, 150);
@@ -569,10 +566,11 @@ document.addEventListener('DOMContentLoaded', () => {
           squares[index].style.backgroundColor = 'goldenrod';
         });
         setTimeout(function() {
-          setScore(4);
+          if (chancesLeft > -1) {
+            setScore(4);
+          }
           columnOfFour.forEach(index => {
-            squares[index].innerHTML =
-              '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
+            squares[index].innerHTML = tpImgEl;
             squares[index].style.backgroundColor = '';
           });
         }, 150);
@@ -589,22 +587,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function saveScore() {
     let userData = {
-      user_id: userAddress,
       score: score
     };
 
-    saveScoreFunction(userData)
-      .then(result => {
-        console.log(result.data.score);
-      })
+    const userDataRef = ref(database, userAddress);
+    update(userDataRef, userData)
+      .then(() => {})
       .catch(error => {
-        console.log(error.message);
+        console.log(error);
       });
   }
 
-  function updateChance() {
-    chancesLeft -= 1;
-
+  function removeOneChance() {
     let userData = {
       user_id: userAddress
     };
@@ -625,6 +619,11 @@ document.addEventListener('DOMContentLoaded', () => {
     [...scoreTexts].forEach(scoreText => {
       scoreText.textContent = score;
     });
+    saveScore();
+  }
+
+  function setPrevScoreText() {
+    prevScoreText.textContent = prevScore;
   }
 
   function resetScore() {
@@ -635,15 +634,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function removeOneChance() {
-    [...chancesLeftTexts].forEach(element => {
-      element.textContent = chancesLeft.toString();
-    });
-    cbLights[cbLen - 1].style.display = 'none';
-    cbLen--;
+  function setMoves() {
+    movesLeftText.textContent = movesLeft.toString();
   }
 
-  function setChances() {
+  function initGame() {
     const userDataRef = ref(database, userAddress);
     onValue(userDataRef, snapshot => {
       if (!snapshot.exists()) {
@@ -651,21 +646,34 @@ document.addEventListener('DOMContentLoaded', () => {
           user_id: userAddress
         })
           .then(result => {
-            console.log(result);
             chancesLeft = result.data.chances_left;
           })
           .catch(error => console.log(error));
       } else {
         const result = snapshot.val();
         chancesLeft = result.chances_left;
+        if (initiated && loggedIn) {
+          initiated = false;
+          updateChancesText();
+          randomizeGumballs();
+        } else if (initiated && !loggedIn) {
+          initiated = false;
+          updateChancesText();
+          getGumballs();
+        }
+        console.log('server - chances left', chancesLeft);
       }
     });
+  }
+
+  function updateChancesText() {
+    console.log('chances left', chancesLeft);
+
     [...chancesLeftTexts].forEach(element => {
       element.textContent = chancesLeft.toString();
     });
-    let usedChances = 5 - chancesLeft;
-    for (let i = 1; i <= usedChances; i++) {
-      cbLights[cbLen - i].style.display = 'none';
+    for (let i = 4; i >= chancesLeft; i--) {
+      cbLights[i].style.display = 'none';
     }
     cbLen = chancesLeft;
   }
@@ -702,9 +710,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (userByRank.includes(userAddress)) {
       let userIndex = userByRank.indexOf(userAddress);
-
+      prevScore = scores[userIndex].toString();
+      if (setInitialPrevScore) {
+        setPrevScoreText();
+        setInitialPrevScore = false;
+      }
       rankText.textContent = (userIndex + 1).toString();
-      prevScoreText.textContent = scores[userIndex].toString();
     } else {
       rankText.textContent = 'No Rank';
     }
