@@ -87,7 +87,8 @@ exports.addNewUser = functions.https.onCall((data, context) => {
           dataExists = false;
           const newUserData = {
             chances_left: 5,
-            score: 0
+            score: 0,
+            high_score: 0
           };
           ref.set(newUserData);
           return newUserData;

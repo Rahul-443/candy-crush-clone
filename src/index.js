@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let userStickerTemplateIds;
   let gumballs = [];
   let score = 0;
+  let highScore = 0;
   let movesLeft = 30;
   let chancesLeft;
   let randomImg = getRandImg();
@@ -383,13 +384,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const timer = document.getElementById('timer');
         timer.textContent = gameResTime;
         let gameResTimer = window.setInterval(() => {
+          updateChancesText();
           if (gameResTime > 0) {
             gameResTime--;
             timer.textContent = gameResTime.toString();
           } else {
             resetScore();
             setPrevScoreText();
-            updateChancesText();
+            saveHighScore();
             randomizeGumballs();
             interval.style.display = 'none';
             clearInterval(gameResTimer);
@@ -629,8 +631,24 @@ document.addEventListener('DOMContentLoaded', () => {
     saveScore();
   }
 
+  function saveHighScore() {
+    if (prevScore > highScore) {
+      const highScoreData = {
+        high_score: prevScore
+      };
+      const userDataRef = ref(database, userAddress);
+      update(userDataRef, highScoreData)
+        .then(() => {
+          console.log(highScoreData);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+  }
+
   function setPrevScoreText() {
-    prevScoreText.textContent = prevScore;
+    prevScoreText.textContent = prevScore.toString();
   }
 
   function resetScore() {
@@ -659,6 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         const result = snapshot.val();
         chancesLeft = result.chances_left;
+        highScore = result.high_score;
         if (initiated && loggedIn) {
           initiated = false;
           updateChancesText();
@@ -690,34 +709,39 @@ document.addEventListener('DOMContentLoaded', () => {
     onValue(usersDataRef, snapshot => {
       const data = snapshot.val();
       console.log(data);
-
       sortByRank(data);
     });
   }
 
-  function sortByRank(userData) {
+  function sortByRank(usersData) {
     let userByRank = [];
-    const userDataKeys = Object.keys(userData);
+    const usersDataKeys = Object.keys(usersData);
+    let highScores = [];
     let scores = [];
-    userDataKeys.forEach(userKey => {
-      scores.push(userData[userKey]['score']);
+    let rankScores = [];
+    usersDataKeys.forEach(userKey => {
+      highScores.push(usersData[userKey]['high_score']);
+      scores.push(usersData[userKey]['score']);
     });
+    for (let i = 0; i < highScores.length; i++) {
+      rankScores.push(Math.max(highScores[i], scores[i]));
+    }
     let scoresOld = [];
-    scoresOld.push(...scores);
-    scores.sort(function(a, b) {
+    scoresOld.push(...rankScores);
+    rankScores.sort(function(a, b) {
       return b - a;
     });
 
-    scores.forEach(score => {
+    rankScores.forEach(score => {
       let oldScoreIndex = scoresOld.indexOf(score);
-      let user = userDataKeys[oldScoreIndex];
+      let user = usersDataKeys[oldScoreIndex];
       userByRank.push(user);
       scoresOld[oldScoreIndex] = '';
     });
 
     if (userByRank.includes(userAddress)) {
       let userIndex = userByRank.indexOf(userAddress);
-      prevScore = scores[userIndex].toString();
+      prevScore = scores[userIndex];
       if (setInitialPrevScore) {
         setPrevScoreText();
         setInitialPrevScore = false;

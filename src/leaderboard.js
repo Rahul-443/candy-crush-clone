@@ -39,17 +39,23 @@ if (sessionStorage.getItem('userAddress') !== null) {
 function sortByRank(usersData) {
   let userByRank = [];
   const userDataKeys = Object.keys(usersData);
+  let highScores = [];
   let scores = [];
+  let rankScores = [];
   userDataKeys.forEach(userKey => {
+    highScores.push(usersData[userKey]['high_score']);
     scores.push(usersData[userKey]['score']);
   });
+  for (let i = 0; i < highScores.length; i++) {
+    rankScores.push(Math.max(highScores[i], scores[i]));
+  }
   let scoresOld = [];
-  scoresOld.push(...scores);
-  scores.sort(function(a, b) {
+  scoresOld.push(...rankScores);
+  rankScores.sort(function(a, b) {
     return b - a;
   });
 
-  scores.forEach(score => {
+  rankScores.forEach(score => {
     let oldScoreIndex = scoresOld.indexOf(score);
     let user = userDataKeys[oldScoreIndex];
     userByRank.push(user);
@@ -61,7 +67,7 @@ function sortByRank(usersData) {
     leaderboard.innerHTML += `<tr>
               <td>${i}</td>
               <td>${user}</td>
-              <td>${scores[i - 1]}</td>
+              <td>${rankScores[i - 1]}</td>
             </tr>`;
     i++;
   });
