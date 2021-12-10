@@ -6,3 +6,4 @@ Saving data on NFTs.
 Sending ZANY Tokens once in a day on the basis of leaderboard.
 API is returning null data for some functions -- BUG
 Adding cloud functions for score validation when they are saved in database by user.
+Adding waiting screens when saving user data.

@@ -8,6 +8,7 @@ const btnLogin = document.getElementById('login');
 const btnMenu = document.getElementById('btn-menu');
 const menu = document.querySelector('.links');
 const leaderboard = document.querySelector('.leaderboard');
+const zanyGumballsSite = 'https://zany-gumballs.web.app';
 
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
@@ -63,6 +64,7 @@ function sortByRank(usersData) {
   });
 
   let i = 1;
+  userByRank.innerHTML = '';
   userByRank.forEach(user => {
     leaderboard.innerHTML += `<tr>
               <td>${i}</td>

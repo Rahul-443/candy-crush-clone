@@ -24,5 +24,5 @@ if (sessionStorage.getItem('userAddress') !== null) {
           </div>`;
   });
 } else {
-  window.location.href = 'https://zany-gumballs.herokuapp.com';
+  location.href = 'https://zany-gumballs.web.app';
 }
