@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const enterBtn = document.getElementById('enter');
   const assetWrapper = document.getElementById('asset-wrapper');
   const rankText = document.getElementById('rank');
-  const prevScoreText = document.getElementById('score-prev');
+  const prevScoreText = document.getElementById('score-high');
   const width = 8;
   let squares;
   let userStickerTemplateIds;
@@ -100,6 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  function logout() {
+    location.reload();
   }
 
   enterBtn.addEventListener('click', login);
@@ -383,16 +387,16 @@ document.addEventListener('DOMContentLoaded', () => {
         interval.style.display = 'grid';
         const timer = document.getElementById('timer');
         timer.textContent = gameResTime;
+        updateChancesText();
         let gameResTimer = window.setInterval(() => {
-          updateChancesText();
           if (gameResTime > 0) {
             gameResTime--;
             timer.textContent = gameResTime.toString();
           } else {
-            resetScore();
-            setPrevScoreText();
             saveHighScore();
+            setHighScoreText();
             randomizeGumballs();
+            resetScore();
             interval.style.display = 'none';
             clearInterval(gameResTimer);
           }
@@ -632,9 +636,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function saveHighScore() {
-    if (prevScore > highScore) {
+    if (score > highScore) {
       const highScoreData = {
-        high_score: prevScore
+        high_score: score
       };
       const userDataRef = ref(database, userAddress);
       update(userDataRef, highScoreData)
@@ -647,8 +651,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function setPrevScoreText() {
-    prevScoreText.textContent = prevScore.toString();
+  function setHighScoreText() {
+    prevScoreText.textContent = highScore.toString();
   }
 
   function resetScore() {
@@ -680,10 +684,12 @@ document.addEventListener('DOMContentLoaded', () => {
         highScore = result.high_score;
         if (initiated && loggedIn) {
           initiated = false;
+          setHighScoreText();
           updateChancesText();
           randomizeGumballs();
         } else if (initiated && !loggedIn) {
           initiated = false;
+          setHighScoreText();
           updateChancesText();
           getGumballs();
         }
@@ -697,6 +703,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     [...chancesLeftTexts].forEach(element => {
       element.textContent = chancesLeft.toString();
+    });
+    [...cbLights].forEach(cbLight => {
+      cbLight.style.display = 'inline-block';
     });
     for (let i = 4; i >= chancesLeft; i--) {
       cbLights[i].style.display = 'none';
@@ -742,10 +751,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (userByRank.includes(userAddress)) {
       let userIndex = userByRank.indexOf(userAddress);
       prevScore = scores[userIndex];
-      if (setInitialPrevScore) {
-        setPrevScoreText();
-        setInitialPrevScore = false;
-      }
       rankText.textContent = (userIndex + 1).toString();
     } else {
       rankText.textContent = 'No Rank';
