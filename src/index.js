@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
   let bubblePopAudio = new Audio('./audios/bubble_pop_pitch_sharp2.mp3');
   let plopAudio = new Audio('./audios/plop.mp3');
+  const passId = '386247';
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
@@ -124,29 +125,35 @@ document.addEventListener('DOMContentLoaded', () => {
         collection_name
       );
       const templatesArray = gumballs['templates'];
-      let templatedIdArray = [];
+      let templatesIdArray = [];
       templatesArray.forEach(template => {
-        templatedIdArray.push(template['template_id']);
+        templatesIdArray.push(template['template_id']);
       });
-      userStickerTemplateIds = [];
-      templatedIdArray.forEach(templateId => {
-        if (stickerTemplates.includes(templateId)) {
-          userStickerTemplateIds.push(templateId);
+      if (templatesIdArray.includes(passId)) {
+        userStickerTemplateIds = [];
+        templatesIdArray.forEach(templateId => {
+          if (stickerTemplates.includes(templateId)) {
+            userStickerTemplateIds.push(templateId);
+          }
+        });
+        if (userStickerTemplateIds.length >= 6) {
+          sessionStorage.setItem('userLoggedIn', true);
+          sessionStorage.setItem('userAddress', userAddress);
+          sessionStorage.setItem(
+            'userStickerTemplateIds',
+            JSON.stringify(userStickerTemplateIds)
+          );
+          sectionLogin.style.display = 'none';
+          loginText.textContent = wax.userAccount;
+          randomizeGumballs();
+        } else {
+          loginResult.style.display = 'block';
+          loginResult.textContent = `Sorry you can't enter you need at least 6 zany gumballs to play the game, you have ${userStickerTemplateIds.length} as of now. Buy Some Gumballs
+          <a href="https://wax.atomichub.io/market?collection_name=zanygumballs&order=desc&schema_name=stickers&sort=created&symbol=WAX">here</a>`;
         }
-      });
-      if (userStickerTemplateIds.length >= 6) {
-        sessionStorage.setItem('userLoggedIn', true);
-        sessionStorage.setItem('userAddress', userAddress);
-        sessionStorage.setItem(
-          'userStickerTemplateIds',
-          JSON.stringify(userStickerTemplateIds)
-        );
-        sectionLogin.style.display = 'none';
-        loginText.textContent = wax.userAccount;
-        randomizeGumballs();
       } else {
         loginResult.style.display = 'block';
-        loginResult.textContent = `Sorry you can't enter you need at least 6 zany gumballs to play the game, you have ${userStickerTemplateIds.length} as of now`;
+        loginResult.textContent = `Sorry you can't enter, You do have Zany Pass. Ask the Owners to issue you a pass.`;
       }
     } catch (error) {
       console.log(error);
