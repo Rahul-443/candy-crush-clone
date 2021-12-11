@@ -112,6 +112,7 @@ exports.refreshGame = functions.pubsub
         snapshot.forEach(child => {
           child.ref.update({
             chances_left: 5,
+            high_score: 0,
             score: 0
           });
         });

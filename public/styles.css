@@ -15,6 +15,7 @@ html {
   /* colors */
   --text-color: aliceblue;
   --color-theme-1: #332a99;
+  --color-theme-2: #473fa3;
   --color-shadow-1: #7c73d9;
 
   --m-aqua: #2dca86;
@@ -153,9 +154,40 @@ ul {
   align-items: center;
 }
 
+.nav-log-user {
+  position: relative;
+  border: 2px solid transparent;
+  padding: 0.2rem 0;
+  border-radius: var(--border-radius-1);
+}
+
+.nav-log-user > ul {
+  display: none;
+  position: absolute;
+  padding: 0.5rem 0;
+  margin-top: 0.2rem;
+  background-color: var(--color-theme-2);
+  transition: var(--transition);
+  width: 90%;
+}
+
+.nav-log-user:hover > ul {
+  display: flex;
+  justify-content: center;
+  border-radius: var(--border-radius-1);
+}
+
+.nav-log-user > ul:hover {
+  box-shadow: var(--shadow-blue-1);
+}
+
 #login {
-  font-size: var(--font-size-08);
+  cursor: pointer;
+}
+
+#logout {
   border: none;
+  cursor: pointer;
 }
 
 .section-center {

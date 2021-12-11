@@ -26,7 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const chancesLeftTexts = document.getElementsByClassName('chances-left');
 
   const loginResult = document.getElementById('login-result');
-  const loginBtn = document.getElementById('login');
+  const loginText = document.getElementById('login');
+  const logoutText = document.getElementById('logout');
   const enterBtn = document.getElementById('enter');
   const assetWrapper = document.getElementById('asset-wrapper');
   const rankText = document.getElementById('rank');
@@ -78,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (loggedIn) {
     sectionLogin.style.display = 'none';
     userAddress = sessionStorage.getItem('userAddress');
-    loginBtn.textContent = userAddress;
+    loginText.textContent = userAddress.replace(/\_/g, '.');
     userStickerTemplateIds = [];
     userStickerTemplateIds.push(
       ...JSON.parse(sessionStorage.getItem('userStickerTemplateIds'))
@@ -104,9 +105,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function logout() {
     location.reload();
+    sessionStorage.removeItem('userLoggedIn');
   }
 
   enterBtn.addEventListener('click', login);
+  logoutText.addEventListener('click', logout);
 
   const api = new ExplorerApi(
     'https://wax.api.atomicassets.io',
@@ -139,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
           JSON.stringify(userStickerTemplateIds)
         );
         sectionLogin.style.display = 'none';
-        loginBtn.textContent = userAddress;
+        loginText.textContent = wax.userAccount;
         randomizeGumballs();
       } else {
         loginResult.style.display = 'block';

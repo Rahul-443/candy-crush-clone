@@ -1,15 +1,23 @@
 import { stickerTemplates, stickerNames, names } from './templateData';
 
-const btnLogin = document.getElementById('login');
+const loginText = document.getElementById('login');
 const btnMenu = document.getElementById('btn-menu');
 const menu = document.querySelector('.links');
 const assets = document.querySelector('.assets');
+const logoutText = document.getElementById('logout');
+const bodyStyles = window.getComputedStyle(document.body);
+const navLogSection = document.querySelector('.nav-log-user');
+const zanyGumballsSite = 'https://zany-gumballs.web.app';
 
 if (sessionStorage.getItem('userAddress') !== null) {
-  btnLogin.textContent = sessionStorage.getItem('userAddress');
+  loginText.textContent = sessionStorage
+    .getItem('userAddress')
+    .replace(/\_/g, '.');
   btnMenu.addEventListener('click', () => {
     menu.classList.toggle('show-links');
   });
+
+  logoutText.addEventListener('click', logout);
 
   const userStickerTemplateIds = JSON.parse(
     sessionStorage.getItem('userStickerTemplateIds')
@@ -25,4 +33,9 @@ if (sessionStorage.getItem('userAddress') !== null) {
   });
 } else {
   location.href = 'https://zany-gumballs.web.app';
+}
+
+function logout() {
+  location.href = zanyGumballsSite;
+  sessionStorage.removeItem('userLoggedIn');
 }

@@ -4,11 +4,12 @@ import { getAnalytics } from 'firebase/analytics';
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { firebaseConfig } from './config';
 
-const btnLogin = document.getElementById('login');
+const loginText = document.getElementById('login');
 const btnMenu = document.getElementById('btn-menu');
 const menu = document.querySelector('.links');
 const leaderboard = document.querySelector('.leaderboard');
 const zanyGumballsSite = 'https://zany-gumballs.web.app';
+const logoutText = document.getElementById('logout');
 
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
@@ -23,10 +24,14 @@ signInAnonymously(auth)
 const database = getDatabase(app);
 
 if (sessionStorage.getItem('userAddress') !== null) {
-  btnLogin.textContent = sessionStorage.getItem('userAddress');
+  loginText.textContent = sessionStorage
+    .getItem('userAddress')
+    .replace(/\_/g, '.');
   btnMenu.addEventListener('click', () => {
     menu.classList.toggle('show-links');
   });
+
+  logoutText.addEventListener('click', logout);
 
   const usersDataRef = ref(database);
   onValue(usersDataRef, snapshot => {
@@ -35,6 +40,11 @@ if (sessionStorage.getItem('userAddress') !== null) {
   });
 } else {
   window.location.href = zanyGumballsSite;
+}
+
+function logout() {
+  location.href = zanyGumballsSite;
+  sessionStorage.removeItem('userLoggedIn');
 }
 
 function sortByRank(usersData) {
@@ -68,7 +78,7 @@ function sortByRank(usersData) {
   userByRank.forEach(user => {
     leaderboard.innerHTML += `<tr>
               <td>${i}</td>
-              <td>${user}</td>
+              <td>${user.replace(/\_/g, '.')}</td>
               <td>${rankScores[i - 1]}</td>
             </tr>`;
     i++;
