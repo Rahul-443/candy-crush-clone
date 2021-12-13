@@ -76,11 +76,13 @@ function sortByRank(usersData) {
   let i = 1;
   userByRank.innerHTML = '';
   userByRank.forEach(user => {
-    leaderboard.innerHTML += `<tr>
-              <td>${i}</td>
-              <td>${user.replace(/\_/g, '.')}</td>
-              <td>${rankScores[i - 1]}</td>
-            </tr>`;
-    i++;
+    if (rankScores[i - 1] !== 0) {
+      leaderboard.innerHTML += `<tr>
+                <td>${i}</td>
+                <td>${user.replace(/\_/g, '.')}</td>
+                <td>${rankScores[i - 1]}</td>
+              </tr>`;
+      i++;
+    }
   });
 }

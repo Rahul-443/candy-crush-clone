@@ -1,9 +1,11 @@
 Saving how much time it took the user to make that score - which can be a factor in leaderboard.
 Taking leaderboard calculatiion to cloud functions.
-Adding animations.
-Adding Sounds.
+Adding animation - displaying combos.
+Adding Settings.
 Saving data on NFTs.
-Sending ZANY Tokens once in a day on the basis of leaderboard.
 API is returning null data for some functions -- BUG
 Adding cloud functions for score validation when they are saved in database by user.
+Taking data from one child (of an anoymous user) to another child (data of all users - only readable) for security and limiting access to data.
 Adding waiting screens when saving user data.
+Query database by value (> 0)
+Adding waiting screens and loading bars.

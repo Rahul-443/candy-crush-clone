@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } else {
         loginResult.style.display = 'block';
-        loginResult.textContent = `Sorry you can't enter, You do have Zany Pass. Ask the Owners to issue you a pass.`;
+        loginResult.textContent = `Sorry you can't enter, You do not have Zany Pass. Ask the Owners to issue you a pass.`;
       }
     } catch (error) {
       console.log(error);
@@ -758,12 +758,15 @@ document.addEventListener('DOMContentLoaded', () => {
       scoresOld[oldScoreIndex] = '';
     });
 
-    if (userByRank.includes(userAddress)) {
+    if (
+      userByRank.includes(userAddress) &&
+      (rankScores[userByRank.indexOf(userAddress)] !== 0)
+    ) {
       let userIndex = userByRank.indexOf(userAddress);
       prevScore = scores[userIndex];
       rankText.textContent = (userIndex + 1).toString();
     } else {
-      rankText.textContent = 'No Rank';
+      rankText.textContent = '0';
     }
   }
 });
