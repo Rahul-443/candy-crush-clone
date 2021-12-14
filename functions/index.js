@@ -54,7 +54,7 @@ exports.removeOneChance = functions.https.onCall((data, context) => {
           if (cl > -1) {
             const chancesLeftObj = { chances_left: cl };
             ref.update(chancesLeftObj);
-            return chancesLeftObj;
+            return chancesLeftObj.toString();
           }
         }
       },

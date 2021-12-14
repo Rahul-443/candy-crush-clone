@@ -4,14 +4,22 @@ import { ExplorerApi, RpcApi } from 'atomicassets';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 import { getAnalytics } from 'firebase/analytics';
-import { getDatabase, ref, onValue, update } from 'firebase/database';
+import {
+  getDatabase,
+  ref,
+  onValue,
+  update,
+  query,
+  orderByChild,
+  startAt
+} from 'firebase/database';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { firebaseConfig } from './config';
 import { stickerNames, stickerTemplates } from './templateData';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const grid = document.querySelector('.grid');
   const collection_name = 'zanygumballs';
+  const grid = document.querySelector('.grid');
   const scoreTexts = document.getElementsByClassName('score');
   const zanyBar = document.getElementById('progress-front');
   const movesLeftText = document.getElementById('moves-left');
@@ -20,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const menu = document.querySelector('.links');
   const chanceBar = document.getElementById('chance-bar');
   const cbLights = chanceBar.getElementsByClassName('chnc');
-  let cbLen = cbLights.length;
   const chancesLeftTexts = document.getElementsByClassName('chances-left');
   const loginResult = document.getElementById('login-result');
   const loginText = document.getElementById('login');
@@ -28,11 +35,37 @@ document.addEventListener('DOMContentLoaded', () => {
   const enterBtn = document.getElementById('enter');
   const assetWrapper = document.getElementById('asset-wrapper');
   const rankText = document.getElementById('rank');
-  const prevScoreText = document.getElementById('score-high');
+  const highScoreText = document.getElementById('score-high');
   const interval = document.getElementById('interval');
   const intervalText = document.querySelector('.interval-text');
   const loader = document.querySelector('.loader');
   const timer = document.getElementById('timer');
+
+  const loggedIn = sessionStorage.getItem('userLoggedIn');
+  const tpImgEl =
+    '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
+  let bubblePopAudio = new Audio('./audios/bubble_pop_pitch_sharp2.mp3');
+  let plopAudio = new Audio('./audios/plop.mp3');
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const analytics = getAnalytics(app);
+  const database = getDatabase(app);
+  const functions = getFunctions(app, 'us-central1');
+  const saveScoreFunction = httpsCallable(functions, 'saveScore');
+  const removeOneChanceFunction = httpsCallable(functions, 'removeOneChance');
+  const addNewUserFunction = httpsCallable(functions, 'addNewUser');
+
+  const wax = new waxjs.WaxJS({
+    rpcEndpoint: 'https://wax.greymass.com'
+  });
+  const api = new ExplorerApi(
+    'https://wax.api.atomicassets.io',
+    'atomicassets',
+    { fetch }
+  );
+
+  const passId = '386247';
   const width = 8;
   let squares;
   let userStickerTemplateIds;
@@ -47,50 +80,44 @@ document.addEventListener('DOMContentLoaded', () => {
   let squareToSwap = '';
   let squareToSwapWith = '';
   let initiated = true;
-  let setInitialPrevScore = true;
-  let prevScore = 0;
-  const loggedIn = sessionStorage.getItem('userLoggedIn');
-  const tpImgEl =
-    '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
-  let bubblePopAudio = new Audio('./audios/bubble_pop_pitch_sharp2.mp3');
-  let plopAudio = new Audio('./audios/plop.mp3');
-  const passId = '386247';
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth();
-  const analytics = getAnalytics(app);
-  const database = getDatabase(app);
-  const functions = getFunctions(app, 'us-central1');
-  const saveScoreFunction = httpsCallable(functions, 'saveScore');
-  const removeOneChanceFunction = httpsCallable(functions, 'removeOneChance');
-  const addNewUserFunction = httpsCallable(functions, 'addNewUser');
+  let matchInterval;
+
+  showLoader();
 
   signInAnonymously(auth)
     .then(() => {
-      console.log('signed in');
+      hideLoader(); //Bad UX - should so an error message if couldn't sign in
+      checkUserLoggedIn();
     })
     .catch(error => {
       console.log(error.message);
     });
 
-  menuButton.addEventListener('click', () => {
-    menu.classList.toggle('show-links');
-  });
+  addBtnEvents();
 
-  if (loggedIn) {
-    hideLoginSection();
-    showLoader();
-    userAddress = sessionStorage.getItem('userAddress');
-    loginText.textContent = userAddress.replace(/\_/g, '.');
-    userStickerTemplateIds = [];
-    userStickerTemplateIds.push(
-      ...JSON.parse(sessionStorage.getItem('userStickerTemplateIds'))
-    );
-    initGame();
+  function addBtnEvents() {
+    enterBtn.addEventListener('click', login);
+    logoutText.addEventListener('click', logout);
+    menuButton.addEventListener('click', () => {
+      menu.classList.toggle('show-links');
+    });
   }
 
-  const wax = new waxjs.WaxJS({
-    rpcEndpoint: 'https://wax.greymass.com'
-  });
+  function checkUserLoggedIn() {
+    if (loggedIn) {
+      hideLoginSection();
+      showLoader();
+      userAddress = sessionStorage.getItem('userAddress');
+      loginText.textContent = userAddress.replace(/\_/g, '.');
+      userStickerTemplateIds = [];
+      userStickerTemplateIds.push(
+        ...JSON.parse(sessionStorage.getItem('userStickerTemplateIds'))
+      );
+      listenUserData();
+    } else {
+      login();
+    }
+  }
 
   async function login() {
     try {
@@ -98,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
       enterBtn.textContent = wax.userAccount;
       userAddress = wax.userAccount;
       userAddress = userAddress.replace(/\./g, '_');
-      initGame();
+      listenUserData();
     } catch (e) {
       console.log(e);
     }
@@ -109,14 +136,45 @@ document.addEventListener('DOMContentLoaded', () => {
     sessionStorage.removeItem('userLoggedIn');
   }
 
-  enterBtn.addEventListener('click', login);
-  logoutText.addEventListener('click', logout);
+  function addNewUser() {
+    addNewUserFunction({
+      user_id: userAddress
+    })
+      .then(result => {
+        if (result !== null) {
+          chancesLeft = result.data.chances_left;
+        }
+      })
+      .catch(error => console.log(error));
+  }
 
-  const api = new ExplorerApi(
-    'https://wax.api.atomicassets.io',
-    'atomicassets',
-    { fetch }
-  );
+  function listenUserData() {
+    const userDataRef = ref(database, userAddress);
+    onValue(userDataRef, snapshot => {
+      if (!snapshot.exists()) {
+        addNewUser();
+      } else {
+        const result = snapshot.val();
+        chancesLeft = result.chances_left;
+        highScore = result.high_score;
+        initGame();
+      }
+    });
+  }
+
+  function initGame() {
+    if (initiated && loggedIn) {
+      initiated = false;
+      highScoreText.textContent = highScore.toString();
+      updateChancesText();
+      randomizeGumballs();
+    } else if (initiated && !loggedIn) {
+      initiated = false;
+      highScoreText.textContent = highScore.toString();
+      updateChancesText();
+      getGumballs();
+    }
+  }
 
   async function getGumballs() {
     try {
@@ -180,16 +238,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (chancesLeft > 0) {
       initiateDrag();
 
-      window.setInterval(function() {
+      if (matchInterval !== undefined) {
+        clearInterval(matchInterval);
+      }
+
+      matchInterval = setInterval(function() {
         moveGbDown();
         checkForRowOfFour();
         checkForColumnOfFour();
         checkForColumnOfThree();
         checkForRowOfThree();
-      }, 250);
+      }, chancesLeft * 50);
     }
 
-    fillLeaderboard();
+    updateRank();
     hideLoader();
   }
 
@@ -389,26 +451,23 @@ document.addEventListener('DOMContentLoaded', () => {
           removeOneChance();
         }
       } else {
+        let gameResTime = 5;
+        timer.textContent = gameResTime;
         if (chancesLeft > 0) {
           movesLeft = 30;
         } else {
           movesLeft = 0;
         }
-
-        let gameResTime = 5;
-        timer.textContent = gameResTime;
         showIntervalText();
         updateChancesText();
-        let gameResTimer = window.setInterval(() => {
+        const gameResTimer = setInterval(() => {
           if (gameResTime > 0) {
             gameResTime--;
             timer.textContent = gameResTime.toString();
           } else {
-            saveHighScore();
-            setHighScoreText();
-            randomizeGumballs();
-            resetScore();
             hideIntervalText();
+            showLoader();
+            refreshGame();
             clearInterval(gameResTimer);
           }
         }, 1000);
@@ -610,11 +669,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function saveScore() {
+    const userDataRef = ref(database, userAddress);
     let userData = {
       score: score
     };
-
-    const userDataRef = ref(database, userAddress);
     update(userDataRef, userData)
       .then(() => {})
       .catch(error => {
@@ -626,10 +684,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let userData = {
       user_id: userAddress
     };
-
     removeOneChanceFunction(userData)
       .then(result => {
-        console.log(result.data.chances_left);
+        if (result !== null) {
+          console.log(result.data.chances_left);
+        }
       })
       .catch(error => {
         console.log(error.message);
@@ -646,7 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveScore();
   }
 
-  function saveHighScore() {
+  function refreshGame() {
     if (score > highScore) {
       const highScoreData = {
         high_score: score
@@ -654,16 +713,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const userDataRef = ref(database, userAddress);
       update(userDataRef, highScoreData)
         .then(() => {
-          console.log(highScoreData);
+          setHighScoreText();
         })
         .catch(error => {
           console.log(error);
         });
     }
+    resetScore();
+    randomizeGumballs();
   }
 
   function setHighScoreText() {
-    prevScoreText.textContent = highScore.toString();
+    highScoreText.textContent = highScore.toString();
   }
 
   function resetScore() {
@@ -678,65 +739,6 @@ document.addEventListener('DOMContentLoaded', () => {
     movesLeftText.textContent = movesLeft.toString();
   }
 
-  function showLoader() {
-    interval.style.display = 'flex';
-    intervalText.style.display = 'none';
-    loader.style.display = 'block';
-  }
-
-  function hideLoader() {
-    interval.style.display = 'none';
-    intervalText.style.display = 'block';
-    loader.style.display = 'none';
-  }
-
-  function showIntervalText() {
-    interval.style.display = 'flex';
-    intervalText.style.display = 'block';
-    loader.style.display = 'none';
-  }
-
-  function hideIntervalText() {
-    interval.style.display = 'none';
-    intervalText.style.display = 'none';
-    loader.style.display = 'block';
-  }
-
-  function hideLoginSection() {
-    sectionLogin.style.display = 'none';
-  }
-
-  function initGame() {
-    const userDataRef = ref(database, userAddress);
-    onValue(userDataRef, snapshot => {
-      if (!snapshot.exists()) {
-        addNewUserFunction({
-          user_id: userAddress
-        })
-          .then(result => {
-            chancesLeft = result.data.chances_left;
-          })
-          .catch(error => console.log(error));
-      } else {
-        const result = snapshot.val();
-        chancesLeft = result.chances_left;
-        highScore = result.high_score;
-        if (initiated && loggedIn) {
-          initiated = false;
-          setHighScoreText();
-          updateChancesText();
-          randomizeGumballs();
-        } else if (initiated && !loggedIn) {
-          initiated = false;
-          setHighScoreText();
-          updateChancesText();
-          getGumballs();
-        }
-        console.log('server - chances left', chancesLeft);
-      }
-    });
-  }
-
   function updateChancesText() {
     console.log('chances left', chancesLeft);
 
@@ -749,11 +751,14 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 4; i >= chancesLeft; i--) {
       cbLights[i].style.display = 'none';
     }
-    cbLen = chancesLeft;
   }
 
-  function fillLeaderboard() {
-    const usersDataRef = ref(database);
+  function updateRank() {
+    const usersDataRef = query(
+      ref(database),
+      orderByChild('high_score'),
+      startAt(1)
+    );
     onValue(usersDataRef, snapshot => {
       const data = snapshot.val();
       console.log(data);
@@ -792,10 +797,37 @@ document.addEventListener('DOMContentLoaded', () => {
       rankScores[userByRank.indexOf(userAddress)] !== 0
     ) {
       let userIndex = userByRank.indexOf(userAddress);
-      prevScore = scores[userIndex];
       rankText.textContent = (userIndex + 1).toString();
     } else {
       rankText.textContent = '0';
     }
+  }
+
+  function showLoader() {
+    interval.style.display = 'flex';
+    intervalText.style.display = 'none';
+    loader.style.display = 'block';
+  }
+
+  function hideLoader() {
+    interval.style.display = 'none';
+    intervalText.style.display = 'block';
+    loader.style.display = 'none';
+  }
+
+  function showIntervalText() {
+    interval.style.display = 'flex';
+    intervalText.style.display = 'block';
+    loader.style.display = 'none';
+  }
+
+  function hideIntervalText() {
+    interval.style.display = 'none';
+    intervalText.style.display = 'none';
+    loader.style.display = 'block';
+  }
+
+  function hideLoginSection() {
+    sectionLogin.style.display = 'none';
   }
 });

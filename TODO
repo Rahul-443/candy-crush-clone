@@ -10,3 +10,4 @@ Adding waiting screens when saving user data.
 Query database by value (> 0)
 Adding waiting screens and loading bars.
 Remove anoymous user before leaving site.
+ FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "high_score" at / to your security rules for better performance. 
