@@ -9,3 +9,4 @@ Taking data from one child (of an anoymous user) to another child (data of all u
 Adding waiting screens when saving user data.
 Query database by value (> 0)
 Adding waiting screens and loading bars.
+Remove anoymous user before leaving site.

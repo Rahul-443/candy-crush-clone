@@ -15,16 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const scoreTexts = document.getElementsByClassName('score');
   const zanyBar = document.getElementById('progress-front');
   const movesLeftText = document.getElementById('moves-left');
-
   const sectionLogin = document.getElementById('section-login');
   const menuButton = document.getElementById('btn-menu');
   const menu = document.querySelector('.links');
   const chanceBar = document.getElementById('chance-bar');
   const cbLights = chanceBar.getElementsByClassName('chnc');
   let cbLen = cbLights.length;
-
   const chancesLeftTexts = document.getElementsByClassName('chances-left');
-
   const loginResult = document.getElementById('login-result');
   const loginText = document.getElementById('login');
   const logoutText = document.getElementById('logout');
@@ -32,6 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const assetWrapper = document.getElementById('asset-wrapper');
   const rankText = document.getElementById('rank');
   const prevScoreText = document.getElementById('score-high');
+  const interval = document.getElementById('interval');
+  const intervalText = document.querySelector('.interval-text');
+  const loader = document.querySelector('.loader');
+  const timer = document.getElementById('timer');
   const width = 8;
   let squares;
   let userStickerTemplateIds;
@@ -54,9 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
   let bubblePopAudio = new Audio('./audios/bubble_pop_pitch_sharp2.mp3');
   let plopAudio = new Audio('./audios/plop.mp3');
   const passId = '386247';
-
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
+  const analytics = getAnalytics(app);
+  const database = getDatabase(app);
+  const functions = getFunctions(app, 'us-central1');
+  const saveScoreFunction = httpsCallable(functions, 'saveScore');
+  const removeOneChanceFunction = httpsCallable(functions, 'removeOneChance');
+  const addNewUserFunction = httpsCallable(functions, 'addNewUser');
 
   signInAnonymously(auth)
     .then(() => {
@@ -66,19 +72,13 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log(error.message);
     });
 
-  const analytics = getAnalytics(app);
-  const database = getDatabase(app);
-  const functions = getFunctions(app, 'us-central1');
-  const saveScoreFunction = httpsCallable(functions, 'saveScore');
-  const removeOneChanceFunction = httpsCallable(functions, 'removeOneChance');
-  const addNewUserFunction = httpsCallable(functions, 'addNewUser');
-
   menuButton.addEventListener('click', () => {
     menu.classList.toggle('show-links');
   });
 
   if (loggedIn) {
-    sectionLogin.style.display = 'none';
+    hideLoginSection();
+    showLoader();
     userAddress = sessionStorage.getItem('userAddress');
     loginText.textContent = userAddress.replace(/\_/g, '.');
     userStickerTemplateIds = [];
@@ -143,7 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'userStickerTemplateIds',
             JSON.stringify(userStickerTemplateIds)
           );
-          sectionLogin.style.display = 'none';
+          hideLoginSection();
+          showLoader();
           loginText.textContent = wax.userAccount;
           randomizeGumballs();
         } else {
@@ -189,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     fillLeaderboard();
+    hideLoader();
   }
 
   function getRandTempId(templateIds) {
@@ -392,11 +394,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           movesLeft = 0;
         }
+
         let gameResTime = 5;
-        const interval = document.getElementById('interval');
-        interval.style.display = 'grid';
-        const timer = document.getElementById('timer');
         timer.textContent = gameResTime;
+        showIntervalText();
         updateChancesText();
         let gameResTimer = window.setInterval(() => {
           if (gameResTime > 0) {
@@ -407,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setHighScoreText();
             randomizeGumballs();
             resetScore();
-            interval.style.display = 'none';
+            hideIntervalText();
             clearInterval(gameResTimer);
           }
         }, 1000);
@@ -677,6 +678,34 @@ document.addEventListener('DOMContentLoaded', () => {
     movesLeftText.textContent = movesLeft.toString();
   }
 
+  function showLoader() {
+    interval.style.display = 'flex';
+    intervalText.style.display = 'none';
+    loader.style.display = 'block';
+  }
+
+  function hideLoader() {
+    interval.style.display = 'none';
+    intervalText.style.display = 'block';
+    loader.style.display = 'none';
+  }
+
+  function showIntervalText() {
+    interval.style.display = 'flex';
+    intervalText.style.display = 'block';
+    loader.style.display = 'none';
+  }
+
+  function hideIntervalText() {
+    interval.style.display = 'none';
+    intervalText.style.display = 'none';
+    loader.style.display = 'block';
+  }
+
+  function hideLoginSection() {
+    sectionLogin.style.display = 'none';
+  }
+
   function initGame() {
     const userDataRef = ref(database, userAddress);
     onValue(userDataRef, snapshot => {
@@ -760,7 +789,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (
       userByRank.includes(userAddress) &&
-      (rankScores[userByRank.indexOf(userAddress)] !== 0)
+      rankScores[userByRank.indexOf(userAddress)] !== 0
     ) {
       let userIndex = userByRank.indexOf(userAddress);
       prevScore = scores[userIndex];

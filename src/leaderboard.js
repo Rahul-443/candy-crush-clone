@@ -1,7 +1,14 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 import { getAnalytics } from 'firebase/analytics';
-import { getDatabase, ref, onValue } from 'firebase/database';
+import {
+  getDatabase,
+  ref,
+  query,
+  onValue,
+  orderByChild,
+  startAt
+} from 'firebase/database';
 import { firebaseConfig } from './config';
 
 const loginText = document.getElementById('login');
@@ -10,18 +17,16 @@ const menu = document.querySelector('.links');
 const leaderboard = document.querySelector('.leaderboard');
 const zanyGumballsSite = 'https://zany-gumballs.web.app';
 const logoutText = document.getElementById('logout');
+const interval = document.getElementById('interval');
+const loader = document.querySelector('.loader');
+let initialized = true;
 
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
-signInAnonymously(auth)
-  .then(() => {
-    console.log('Signed In');
-  })
-  .catch(error => {
-    console.log(error);
-  });
 const database = getDatabase(app);
+
+interval.style.display = 'flex';
 
 if (sessionStorage.getItem('userAddress') !== null) {
   loginText.textContent = sessionStorage
@@ -30,14 +35,29 @@ if (sessionStorage.getItem('userAddress') !== null) {
   btnMenu.addEventListener('click', () => {
     menu.classList.toggle('show-links');
   });
-
   logoutText.addEventListener('click', logout);
 
-  const usersDataRef = ref(database);
-  onValue(usersDataRef, snapshot => {
-    const usersData = snapshot.val();
-    sortByRank(usersData);
-  });
+  signInAnonymously(auth)
+    .then(() => {
+      const usersDataRef = query(
+        ref(database),
+        orderByChild('high_score'),
+        startAt(1)
+      );
+      onValue(usersDataRef, snapshot => {
+        const usersData = snapshot.val();
+        console.log(usersData);
+
+        sortByRank(usersData);
+        if (initialized) {
+          interval.style.display = 'none';
+          initialized = false;
+        }
+      });
+    })
+    .catch(error => {
+      console.log(error);
+    });
 } else {
   window.location.href = zanyGumballsSite;
 }
@@ -74,7 +94,11 @@ function sortByRank(usersData) {
   });
 
   let i = 1;
-  userByRank.innerHTML = '';
+  leaderboard.innerHTML = `<tr>
+          <th>Rank</th>
+          <th>Address</th>
+          <th>High Score</th>
+        </tr>`;
   userByRank.forEach(user => {
     if (rankScores[i - 1] !== 0) {
       leaderboard.innerHTML += `<tr>
