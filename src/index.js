@@ -39,7 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const interval = document.getElementById('interval');
   const intervalText = document.querySelector('.interval-text');
   const loader = document.querySelector('.loader');
-  const timer = document.getElementById('timer');
+  const gameTimer = document.querySelector(`.game-timer`);
+  const timer = document.getElementById('interval-timer');
 
   const loggedIn = sessionStorage.getItem('userLoggedIn');
   const tpImgEl =
@@ -81,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let squareToSwapWith = '';
   let initiated = true;
   let matchInterval;
+  const gameTimeInterval;
 
   showLoader();
 
@@ -332,6 +334,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function swapStart() {
+      if (movesLeft === 30) {
+        startGameTimer();
+      }
       imgBeingDragged = this.querySelector('.img-gumball').getAttribute('src');
       ibdAlt = this.querySelector('.img-gumball').getAttribute('alt');
       squareIdBeingDragged = parseInt(this.id);
@@ -460,6 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         showIntervalText();
         updateChancesText();
+        stopGameTimer();
         const gameResTimer = setInterval(() => {
           if (gameResTime > 0) {
             gameResTime--;
@@ -831,5 +837,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function hideLoginSection() {
     sectionLogin.style.display = 'none';
+  }
+
+  function startGameTimer() {
+    let i = 0;
+    let mins = `00`;
+    let secs = `00`;
+    let time = `00:00`;
+    gameTimeInterval = setInterval(() => {
+      i++;
+      mins = floor(i / 60);
+      if (i > 60) {
+        secs = i % 60;
+      } else {
+        secs = i;
+      }
+      if (mins > 60 && secs > 10) {
+        mins = `${mins}`;
+        secs = `${secs}`;
+      } else if (mins > 60 && secs < 10) {
+        mins = `${mins}`;
+        secs = `0${secs}`;
+      } else if (mins < 60 && secs > 10) {
+        mins = `0${mins}`;
+        secs = `${secs}`;
+      } else if (mins < 60 && secs < 10) {
+        mins = `0${mins}`;
+        secs = `0${secs}`;
+      }
+      time = `${mins}:${secs}`;
+      gameTimer.textContent = time;
+    }, 1000);
+  }
+
+  function stopGameTimer() {
+    clearInterval(gameTimeInterval);
   }
 });
