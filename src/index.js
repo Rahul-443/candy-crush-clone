@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function listenUserData() {
-    const userDataRef = ref(database, userAddress);
+    const userDataRef = ref(database, `users/${userAddress}`);
     onValue(userDataRef, snapshot => {
       if (!snapshot.exists()) {
         addNewUser();
@@ -669,7 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function saveScore() {
-    const userDataRef = ref(database, userAddress);
+    const userDataRef = ref(database, `users/${userAddress}`);
     let userData = {
       score: score
     };
@@ -687,7 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
     removeOneChanceFunction(userData)
       .then(result => {
         if (result !== null) {
-          console.log(result.data.chances_left);
+          console.log(result);
         }
       })
       .catch(error => {
@@ -710,7 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const highScoreData = {
         high_score: score
       };
-      const userDataRef = ref(database, userAddress);
+      const userDataRef = ref(database, `users/${userAddress}`);
       update(userDataRef, highScoreData)
         .then(() => {
           setHighScoreText();
@@ -755,14 +755,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateRank() {
     const usersDataRef = query(
-      ref(database),
+      ref(database, `users`),
       orderByChild('high_score'),
       startAt(1)
     );
     onValue(usersDataRef, snapshot => {
       const data = snapshot.val();
       console.log(data);
-      sortByRank(data);
+      if (data !== null) {
+        sortByRank(data);
+      }
     });
   }
 

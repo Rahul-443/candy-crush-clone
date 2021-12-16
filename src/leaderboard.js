@@ -18,7 +18,6 @@ const leaderboard = document.querySelector('.leaderboard');
 const zanyGumballsSite = 'https://zany-gumballs.web.app';
 const logoutText = document.getElementById('logout');
 const interval = document.getElementById('interval');
-const loader = document.querySelector('.loader');
 let initialized = true;
 
 const app = initializeApp(firebaseConfig);
@@ -40,7 +39,7 @@ if (sessionStorage.getItem('userAddress') !== null) {
   signInAnonymously(auth)
     .then(() => {
       const usersDataRef = query(
-        ref(database),
+        ref(database, `users`),
         orderByChild('high_score'),
         startAt(1)
       );
@@ -48,7 +47,9 @@ if (sessionStorage.getItem('userAddress') !== null) {
         const usersData = snapshot.val();
         console.log(usersData);
 
-        sortByRank(usersData);
+        if (usersData !== null) {
+          sortByRank(usersData);
+        }
         if (initialized) {
           interval.style.display = 'none';
           initialized = false;

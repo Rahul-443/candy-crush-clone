@@ -31,7 +31,7 @@ exports.saveScore = functions.https.onCall((data, context) => {
 
 exports.removeOneChance = functions.https.onCall((data, context) => {
   const userId = data.user_id;
-  const ref = admin.database().ref(userId);
+  const ref = admin.database().ref(`users/${userId}`);
 
   if (!context.auth) {
     throw new functions.https.HttpsError(
@@ -67,7 +67,7 @@ exports.removeOneChance = functions.https.onCall((data, context) => {
 
 exports.addNewUser = functions.https.onCall((data, context) => {
   const userId = data.user_id;
-  const ref = admin.database().ref(userId);
+  const ref = admin.database().ref(`users/${userId}`);
 
   if (!context.auth) {
     throw new functions.https.HttpsError(
@@ -104,7 +104,7 @@ exports.addNewUser = functions.https.onCall((data, context) => {
 exports.refreshGame = functions.pubsub
   .schedule('every 24 hours')
   .onRun(context => {
-    const ref = admin.database().ref();
+    const ref = admin.database().ref(`users`);
 
     ref.once(
       'value',
