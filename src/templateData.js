@@ -99,6 +99,18 @@ export const stickerNames = [
   'bop'
 ];
 
+export const LegendaryStickerNames = [
+  'dave',
+  'pi',
+  'pam',
+  'kipp',
+  'grey',
+  'jill',
+  'holt',
+  'fuse',
+  'elle'
+];
+
 export const names = [
   'Clunk CAIT Special',
   'Me CAIT Special',

@@ -69,29 +69,49 @@ function logout() {
 }
 
 function sortByRank(usersData) {
-  let userByRank = [];
-  const userDataKeys = Object.keys(usersData);
+  let userDataByRank = {};
+  const usersDataKeys = Object.keys(usersData);
   let highScores = [];
   let scores = [];
+  let timeTakenHighScores = [];
+  let timeTakenScores = [];
   let rankScores = [];
-  userDataKeys.forEach(userKey => {
+  let rankTimeTaken = [];
+  let rankPts = [];
+  usersDataKeys.forEach(userKey => {
     highScores.push(usersData[userKey]['high_score']);
     scores.push(usersData[userKey]['score']);
+    timeTakenHighScores.push(usersData[userKey][`time_taken_high_score`]);
+    timeTakenScores.push(usersData[userKey]['time_taken_score']);
   });
   for (let i = 0; i < highScores.length; i++) {
-    rankScores.push(Math.max(highScores[i], scores[i]));
+    if (highScores[i] > scores[i]) {
+      rankScores.push(highScores[i]);
+      rankTimeTaken.push(timeTakenHighScores[i]);
+      rankPts.push(highScores[i] / timeTakenHighScores[i]);
+    } else {
+      rankScores.push(scores[i]);
+      rankTimeTaken.push(timeTakenScores[i]);
+      rankPts.push(scores[i] / timeTakenScores[i]);
+    }
   }
-  let scoresOld = [];
-  scoresOld.push(...rankScores);
-  rankScores.sort(function(a, b) {
+  let ptsOld = [];
+  ptsOld.push(...rankPts);
+  rankPts.sort(function(a, b) {
     return b - a;
   });
 
-  rankScores.forEach(score => {
-    let oldScoreIndex = scoresOld.indexOf(score);
-    let user = userDataKeys[oldScoreIndex];
-    userByRank.push(user);
-    scoresOld[oldScoreIndex] = '';
+  rankPts.forEach(pts => {
+    let oldPtIndex = ptsOld.indexOf(pts);
+    let user = usersDataKeys[oldPtIndex];
+    let userHighScore = rankScores[oldPtIndex];
+    let userTimeTaken = rankTimeTaken[oldPtIndex];
+    userDataByRank[user] = {
+      pts: pts.toFixed(3),
+      highScore: userHighScore,
+      timeTaken: changeValToTime(userTimeTaken)
+    };
+    ptsOld[oldPtIndex] = '';
   });
 
   let i = 1;
@@ -99,15 +119,47 @@ function sortByRank(usersData) {
           <th>Rank</th>
           <th>Address</th>
           <th>High Score</th>
+          <th>Time Taken</th>
+          <th>Zany Points</th>
         </tr>`;
-  userByRank.forEach(user => {
+  let rankUsers = Object.keys(userDataByRank);
+  rankUsers.forEach(user => {
     if (rankScores[i - 1] !== 0) {
       leaderboard.innerHTML += `<tr>
                 <td>${i}</td>
                 <td>${user.replace(/\_/g, '.')}</td>
-                <td>${rankScores[i - 1]}</td>
-              </tr>`;
+                <td>${userDataByRank[user][`highScore`]}</td>
+                <td>${userDataByRank[user][`timeTaken`]}</td>
+                <td>${userDataByRank[user][`pts`]}</td>
+                </tr>`;
       i++;
     }
   });
+}
+
+function changeValToTime(timeTaken) {
+  let mins = `00`;
+  let secs = `00`;
+  let time = `00:00`;
+  mins = Math.floor(timeTaken / 60);
+  if (timeTaken >= 60) {
+    secs = timeTaken % 60;
+  } else {
+    secs = timeTaken;
+  }
+  if (mins > 10 && secs > 10) {
+    mins = `${mins}`;
+    secs = `${secs}`;
+  } else if (mins > 10 && secs < 10) {
+    mins = `${mins}`;
+    secs = `0${secs}`;
+  } else if (mins < 10 && secs > 10) {
+    mins = `0${mins}`;
+    secs = `${secs}`;
+  } else if (mins < 10 && secs < 10) {
+    mins = `0${mins}`;
+    secs = `0${secs}`;
+  }
+  time = `${mins}:${secs}`;
+  return time;
 }

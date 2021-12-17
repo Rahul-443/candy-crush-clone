@@ -342,7 +342,7 @@ ul {
   }
 }
 
-#timer {
+#interval-timer {
   font-size: 10rem;
 }
 
@@ -422,11 +422,11 @@ ul {
 }
 
 .leaderboard th {
-  padding: 0.75rem 0;
+  padding: 0.75rem 0.5rem;
 }
 
 .leaderboard td {
-  padding: 0.75rem 0;
+  padding: 0.75rem 0.5rem;
 }
 
 @media screen and (min-width: 800px) {

@@ -88,7 +88,9 @@ exports.addNewUser = functions.https.onCall((data, context) => {
           const newUserData = {
             chances_left: 5,
             score: 0,
-            high_score: 0
+            high_score: 0,
+            time_taken_high_score: 0,
+            time_taken_score: 0
           };
           ref.set(newUserData);
           return newUserData;
@@ -113,7 +115,9 @@ exports.refreshGame = functions.pubsub
           child.ref.update({
             chances_left: 5,
             high_score: 0,
-            score: 0
+            score: 0,
+            time_taken_high_score: 0,
+            time_taken_score: 0
           });
         });
       },

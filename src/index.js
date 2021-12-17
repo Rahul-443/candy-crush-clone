@@ -15,7 +15,7 @@ import {
 } from 'firebase/database';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { firebaseConfig } from './config';
-import { stickerNames, stickerTemplates } from './templateData';
+import { stickerNames, stickerTemplates, LegendaryStickerNames } from './templateData';
 
 document.addEventListener('DOMContentLoaded', () => {
   const collection_name = 'zanygumballs';
@@ -82,7 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let squareToSwapWith = '';
   let initiated = true;
   let matchInterval;
-  const gameTimeInterval;
+  let gameTimeInterval;
+  let timeTaken = 0;
 
   showLoader();
 
@@ -330,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function dragStart() {
       swapStart.call(this);
 
-      console.log(this.id, 'dragstart');
+      // console.log(this.id, 'dragstart');
     }
 
     function swapStart() {
@@ -344,23 +345,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function dragOver(e) {
       e.preventDefault();
-      console.log(this.id, 'dragover');
+      // console.log(this.id, 'dragover');
     }
 
     function dragEnter(e) {
       e.preventDefault();
-      console.log(this.id, 'dragenter');
+      // console.log(this.id, 'dragenter');
     }
 
     function dragLeave() {
-      console.log(this.id, 'dragleave');
+      // console.log(this.id, 'dragleave');
     }
 
     function drop(e) {
       e.preventDefault();
       swapEnd.call(this);
 
-      console.log(this.id, 'drop');
+      // console.log(this.id, 'drop');
     }
 
     function swapEnd() {
@@ -414,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
         validMove &&
         !invalidMove
       ) {
-        console.log(0);
+        // console.log(0);
 
         squares[
           squareIdBeingDragged
@@ -435,7 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
         (squareIdBeingReplaced || imgBeingReplaced) &&
         (!validMove || invalidMove)
       ) {
-        console.log(1);
+        // console.log(1);
 
         squares[
           squareIdBeingDragged
@@ -444,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
           squareIdBeingReplaced
         ].innerHTML = `<img class="img-gumball" src="${imgBeingReplaced}" alt="${ibrAlt}" />`;
       } else {
-        console.log(2);
+        // console.log(2);
 
         squares[
           squareIdBeingDragged
@@ -482,11 +483,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function dragEnd() {
-      console.log(this.id, 'dragend');
+      // console.log(this.id, 'dragend');
     }
 
     function selectSquare() {
-      console.log(this.id, 'clicked');
       if (squareToSwap === '') {
         squareToSwap = this.id;
         this.style.backgroundColor = 'aquamarine';
@@ -546,10 +546,10 @@ document.addEventListener('DOMContentLoaded', () => {
           rowOfThree.forEach(index => {
             squares[index].style.backgroundColor = 'goldenrod';
           });
+          if (chancesLeft > -1) {
+            setScore(3, decidedGumball);
+          }
           setTimeout(function() {
-            if (chancesLeft > -1) {
-              setScore(3);
-            }
             rowOfThree.forEach(index => {
               squares[index].style.backgroundColor = '';
               squares[index].innerHTML = tpImgEl;
@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
           squares[index].style.backgroundColor = 'goldenrod';
         });
         if (chancesLeft > -1) {
-          setScore(3);
+          setScore(3, decidedGumball);
         }
         setTimeout(function() {
           columnOfThree.forEach(index => {
@@ -620,10 +620,10 @@ document.addEventListener('DOMContentLoaded', () => {
           rowOfFour.forEach(index => {
             squares[index].style.backgroundColor = 'goldenrod';
           });
+          if (chancesLeft > -1) {
+            setScore(4, decidedGumball);
+          }
           setTimeout(function() {
-            if (chancesLeft > -1) {
-              setScore(4);
-            }
             rowOfFour.forEach(index => {
               squares[index].innerHTML = tpImgEl;
               squares[index].style.backgroundColor = '';
@@ -654,10 +654,10 @@ document.addEventListener('DOMContentLoaded', () => {
         columnOfFour.forEach(index => {
           squares[index].style.backgroundColor = 'goldenrod';
         });
+        if (chancesLeft > -1) {
+          setScore(4, decidedGumball);
+        }
         setTimeout(function() {
-          if (chancesLeft > -1) {
-            setScore(4);
-          }
           columnOfFour.forEach(index => {
             squares[index].innerHTML = tpImgEl;
             squares[index].style.backgroundColor = '';
@@ -677,7 +677,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function saveScore() {
     const userDataRef = ref(database, `users/${userAddress}`);
     let userData = {
-      score: score
+      score: score,
+      time_taken_score: timeTaken
     };
     update(userDataRef, userData)
       .then(() => {})
@@ -701,8 +702,14 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  function setScore(i) {
-    score += i;
+  function setScore(i, gbName) {
+    let scorePts;
+    if (LegendaryStickerNames.includes(gbName)) {
+      scorePts = i + 2;
+    } else {
+      scorePts = i;
+    }
+    score += scorePts;
     let width = score * 0.06;
     zanyBar.style.width = width + 'rem';
     [...scoreTexts].forEach(scoreText => {
@@ -714,7 +721,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function refreshGame() {
     if (score > highScore) {
       const highScoreData = {
-        high_score: score
+        high_score: score,
+        time_taken_high_score: timeTaken
       };
       const userDataRef = ref(database, `users/${userAddress}`);
       update(userDataRef, highScoreData)
@@ -767,7 +775,7 @@ document.addEventListener('DOMContentLoaded', () => {
     );
     onValue(usersDataRef, snapshot => {
       const data = snapshot.val();
-      console.log(data);
+      // console.log(data);
       if (data !== null) {
         sortByRank(data);
       }
@@ -779,30 +787,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const usersDataKeys = Object.keys(usersData);
     let highScores = [];
     let scores = [];
+    let timeTakenHighScores = [];
+    let timeTakenScores = [];
     let rankScores = [];
+    let rankTimeTaken = [];
+    let rankPts = [];
     usersDataKeys.forEach(userKey => {
       highScores.push(usersData[userKey]['high_score']);
       scores.push(usersData[userKey]['score']);
+      timeTakenHighScores.push(usersData[userKey][`time_taken_high_score`]);
+      timeTakenScores.push(usersData[userKey]['time_taken_score']);
     });
     for (let i = 0; i < highScores.length; i++) {
-      rankScores.push(Math.max(highScores[i], scores[i]));
+      if (highScores[i] > scores[i]) {
+        rankScores.push(highScores[i]);
+        rankTimeTaken.push(timeTakenHighScores[i]);
+        rankPts.push(highScores[i] / timeTakenHighScores[i]);
+      } else {
+        rankScores.push(scores[i]);
+        rankTimeTaken.push(timeTakenScores[i]);
+        rankPts.push(scores[i] / timeTakenScores[i]);
+      }
     }
-    let scoresOld = [];
-    scoresOld.push(...rankScores);
-    rankScores.sort(function(a, b) {
+    let ptsOld = [];
+    ptsOld.push(...rankPts);
+    rankPts.sort(function(a, b) {
       return b - a;
     });
 
-    rankScores.forEach(score => {
-      let oldScoreIndex = scoresOld.indexOf(score);
-      let user = usersDataKeys[oldScoreIndex];
+    rankPts.forEach(pts => {
+      let oldPtIndex = ptsOld.indexOf(pts);
+      let user = usersDataKeys[oldPtIndex];
       userByRank.push(user);
-      scoresOld[oldScoreIndex] = '';
+      ptsOld[oldPtIndex] = '';
     });
 
     if (
       userByRank.includes(userAddress) &&
-      rankScores[userByRank.indexOf(userAddress)] !== 0
+      rankPts[userByRank.indexOf(userAddress)] !== 0
     ) {
       let userIndex = userByRank.indexOf(userAddress);
       rankText.textContent = (userIndex + 1).toString();
@@ -840,37 +862,41 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function startGameTimer() {
-    let i = 0;
+    timeTaken = 0;
     let mins = `00`;
     let secs = `00`;
     let time = `00:00`;
+    console.log('timer start');
+
     gameTimeInterval = setInterval(() => {
-      i++;
-      mins = floor(i / 60);
-      if (i > 60) {
-        secs = i % 60;
+      mins = Math.floor(timeTaken / 60);
+      if (timeTaken >= 60) {
+        secs = timeTaken % 60;
       } else {
-        secs = i;
+        secs = timeTaken;
       }
-      if (mins > 60 && secs > 10) {
+      if (mins > 10 && secs > 10) {
         mins = `${mins}`;
         secs = `${secs}`;
-      } else if (mins > 60 && secs < 10) {
+      } else if (mins > 10 && secs < 10) {
         mins = `${mins}`;
         secs = `0${secs}`;
-      } else if (mins < 60 && secs > 10) {
+      } else if (mins < 10 && secs > 10) {
         mins = `0${mins}`;
         secs = `${secs}`;
-      } else if (mins < 60 && secs < 10) {
+      } else if (mins < 10 && secs < 10) {
         mins = `0${mins}`;
         secs = `0${secs}`;
       }
       time = `${mins}:${secs}`;
       gameTimer.textContent = time;
+      timeTaken++;
+      console.log(timeTaken, time);
     }, 1000);
   }
 
   function stopGameTimer() {
     clearInterval(gameTimeInterval);
+    gameTimer.textContent = `00:00`;
   }
 });
