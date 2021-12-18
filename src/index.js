@@ -15,7 +15,11 @@ import {
 } from 'firebase/database';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { firebaseConfig } from './config';
-import { stickerNames, stickerTemplates, LegendaryStickerNames } from './templateData';
+import {
+  stickerNames,
+  stickerTemplates,
+  LegendaryStickerNames
+} from './templateData';
 
 document.addEventListener('DOMContentLoaded', () => {
   const collection_name = 'zanygumballs';
@@ -678,7 +682,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const userDataRef = ref(database, `users/${userAddress}`);
     let userData = {
       score: score,
-      time_taken_score: timeTaken
+      time_taken_score: timeTaken,
+      zany_pts_score: score / timeTaken
     };
     update(userDataRef, userData)
       .then(() => {})
@@ -722,7 +727,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (score > highScore) {
       const highScoreData = {
         high_score: score,
-        time_taken_high_score: timeTaken
+        time_taken_high_score: timeTaken,
+        zany_pts_hscore: score / timeTaken
       };
       const userDataRef = ref(database, `users/${userAddress}`);
       update(userDataRef, highScoreData)
@@ -799,14 +805,16 @@ document.addEventListener('DOMContentLoaded', () => {
       timeTakenScores.push(usersData[userKey]['time_taken_score']);
     });
     for (let i = 0; i < highScores.length; i++) {
-      if (highScores[i] > scores[i]) {
+      let rankPtsHighScore = highScores[i] / timeTakenHighScores[i];
+      let rankPtsScore = scores[i] / timeTakenScores[i];
+      if (rankPtsHighScore > rankPtsScore) {
         rankScores.push(highScores[i]);
         rankTimeTaken.push(timeTakenHighScores[i]);
-        rankPts.push(highScores[i] / timeTakenHighScores[i]);
+        rankPts.push(rankPtsHighScore);
       } else {
         rankScores.push(scores[i]);
         rankTimeTaken.push(timeTakenScores[i]);
-        rankPts.push(scores[i] / timeTakenScores[i]);
+        rankPts.push(rankPtsScore);
       }
     }
     let ptsOld = [];

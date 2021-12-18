@@ -90,7 +90,9 @@ exports.addNewUser = functions.https.onCall((data, context) => {
             score: 0,
             high_score: 0,
             time_taken_high_score: 0,
-            time_taken_score: 0
+            time_taken_score: 0,
+            zany_pts_hscore: 0,
+            zany_pts_score: 0
           };
           ref.set(newUserData);
           return newUserData;
@@ -117,7 +119,9 @@ exports.refreshGame = functions.pubsub
             high_score: 0,
             score: 0,
             time_taken_high_score: 0,
-            time_taken_score: 0
+            time_taken_score: 0,
+            zany_pts_hscore: 0,
+            zany_pts_score: 0
           });
         });
       },

@@ -1,9 +1,10 @@
+Save Zany Points in database and index by it, improve how scores are saved.
+Seasons leaderboard.
 Saving data on NFTs.
 API is returning null data for some functions -- BUG
 Adding cloud functions for score validation when they are saved in database by user.
 Taking data from one child (of an anoymous user) to another child (data of all users - only readable) for security and limiting access to data.
-Remove anoymous user before leaving site.
- FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "high_score" at / to your security rules for better performance. 
+Remove anoymous user before leaving site. 
 Adding animation - displaying combos.
 Adding Settings.
 Taking leaderboard calculation to cloud functions.

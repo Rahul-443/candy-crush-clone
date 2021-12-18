@@ -85,14 +85,16 @@ function sortByRank(usersData) {
     timeTakenScores.push(usersData[userKey]['time_taken_score']);
   });
   for (let i = 0; i < highScores.length; i++) {
-    if (highScores[i] > scores[i]) {
+    let rankPtsHighScore = highScores[i] / timeTakenHighScores[i];
+    let rankPtsScore = scores[i] / timeTakenScores[i];
+    if (rankPtsHighScore > rankPtsScore) {
       rankScores.push(highScores[i]);
       rankTimeTaken.push(timeTakenHighScores[i]);
-      rankPts.push(highScores[i] / timeTakenHighScores[i]);
+      rankPts.push(rankPtsHighScore);
     } else {
       rankScores.push(scores[i]);
       rankTimeTaken.push(timeTakenScores[i]);
-      rankPts.push(scores[i] / timeTakenScores[i]);
+      rankPts.push(rankPtsScore);
     }
   }
   let ptsOld = [];
