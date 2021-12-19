@@ -1,10 +1,9 @@
-Save Zany Points in database and index by it, improve how scores are saved.
 Seasons leaderboard.
-Saving data on NFTs.
-API is returning null data for some functions -- BUG
-Adding cloud functions for score validation when they are saved in database by user.
-Taking data from one child (of an anoymous user) to another child (data of all users - only readable) for security and limiting access to data.
 Remove anoymous user before leaving site. 
+Taking data from one child (of an anoymous user) to another child (data of all users - only readable) for security and limiting access to data.
+Adding cloud functions for score validation when they are saved in database by user.
 Adding animation - displaying combos.
 Adding Settings.
-Taking leaderboard calculation to cloud functions.
+Saving data on NFTs.
+API is returning null data for some functions -- BUG
+leaderboard function should query data (order by child - start at 1) from users child.

@@ -31,7 +31,7 @@ exports.saveScore = functions.https.onCall((data, context) => {
 
 exports.removeOneChance = functions.https.onCall((data, context) => {
   const userId = data.user_id;
-  const ref = admin.database().ref(`users/${userId}`);
+  const ref = admin.database().ref(`users/${userId}/chances_left`);
 
   if (!context.auth) {
     throw new functions.https.HttpsError(
@@ -39,7 +39,6 @@ exports.removeOneChance = functions.https.onCall((data, context) => {
       'The function must be called while authenticated'
     );
   } else {
-    let chancesLeft;
     ref.once(
       'value',
       snapshot => {
@@ -49,12 +48,10 @@ exports.removeOneChance = functions.https.onCall((data, context) => {
             `The user's data was not found`
           );
         } else {
-          chancesLeft = snapshot.val().chances_left;
-          let cl = chancesLeft - 1;
-          if (cl > -1) {
-            const chancesLeftObj = { chances_left: cl };
-            ref.update(chancesLeftObj);
-            return chancesLeftObj.toString();
+          let cl = snapshot.val();
+          if (cl > 0) {
+            ref.set(cl - 1);
+            return true;
           }
         }
       },
@@ -105,6 +102,73 @@ exports.addNewUser = functions.https.onCall((data, context) => {
   }
 });
 
+exports.updateLeaderboard = functions.database
+  .ref(`/users`)
+  .onWrite((snapshot, context) => {
+    const ref = admin.database().ref(`leaderboard`);
+    let usersData = snapshot.after.val();
+    let userDataByRank = {};
+    const usersDataKeys = Object.keys(usersData);
+    let highScores = [];
+    let scores = [];
+    let timeTakenHighScores = [];
+    let timeTakenScores = [];
+    let rankScores = [];
+    let rankTimeTaken = [];
+    let rankPts = [];
+    usersDataKeys.forEach(userKey => {
+      highScores.push(usersData[userKey]['high_score']);
+      scores.push(usersData[userKey]['score']);
+      timeTakenHighScores.push(usersData[userKey][`time_taken_high_score`]);
+      timeTakenScores.push(usersData[userKey]['time_taken_score']);
+    });
+    for (let i = 0; i < highScores.length; i++) {
+      let rankPtsHighScore;
+      let rankPtsScore;
+      if (timeTakenHighScores[i] !== 0) {
+        rankPtsHighScore = highScores[i] / timeTakenHighScores[i];
+      } else {
+        rankPtsHighScore = 0;
+      }
+      if (timeTakenScores[i] !== 0) {
+        rankPtsScore = scores[i] / timeTakenScores[i];
+      } else {
+        rankPtsScore = 0;
+      }
+      if (highScores[i] > scores[i]) {
+        rankScores.push(highScores[i]);
+        rankTimeTaken.push(timeTakenHighScores[i]);
+        rankPts.push(rankPtsHighScore);
+      } else {
+        rankScores.push(scores[i]);
+        rankTimeTaken.push(timeTakenScores[i]);
+        rankPts.push(rankPtsScore);
+      }
+    }
+    let scoresOld = [];
+    scoresOld.push(...rankScores);
+    rankScores.sort(function(a, b) {
+      return b - a;
+    });
+
+    rankScores.forEach(score => {
+      let oldScoreIndex = scoresOld.indexOf(score);
+      let user = usersDataKeys[oldScoreIndex];
+      let userZanyPts = rankPts[oldScoreIndex];
+      let userTimeTaken = rankTimeTaken[oldScoreIndex];
+      userDataByRank[user] = {
+        highScore: score,
+        pts: userZanyPts.toFixed(3),
+        timeTaken: changeValToTime(userTimeTaken)
+      };
+      scoresOld[oldScoreIndex] = '';
+    });
+
+    ref.update(userDataByRank).catch(error => {
+      console.log(error);
+    });
+  });
+
 exports.refreshGame = functions.pubsub
   .schedule('every 24 hours')
   .onRun(context => {
@@ -132,3 +196,30 @@ exports.refreshGame = functions.pubsub
 
     return null;
   });
+
+function changeValToTime(timeTaken) {
+  let mins = `00`;
+  let secs = `00`;
+  let time = `00:00`;
+  mins = Math.floor(timeTaken / 60);
+  if (timeTaken >= 60) {
+    secs = timeTaken % 60;
+  } else {
+    secs = timeTaken;
+  }
+  if (mins > 10 && secs > 10) {
+    mins = `${mins}`;
+    secs = `${secs}`;
+  } else if (mins > 10 && secs < 10) {
+    mins = `${mins}`;
+    secs = `0${secs}`;
+  } else if (mins < 10 && secs > 10) {
+    mins = `0${mins}`;
+    secs = `${secs}`;
+  } else if (mins < 10 && secs < 10) {
+    mins = `0${mins}`;
+    secs = `0${secs}`;
+  }
+  time = `${mins}:${secs}`;
+  return time;
+}

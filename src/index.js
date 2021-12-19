@@ -121,8 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ...JSON.parse(sessionStorage.getItem('userStickerTemplateIds'))
       );
       listenUserData();
-    } else {
-      login();
     }
   }
 
@@ -685,6 +683,11 @@ document.addEventListener('DOMContentLoaded', () => {
       time_taken_score: timeTaken,
       zany_pts_score: score / timeTaken
     };
+    if (userData.zany_pts_score === Infinity) {
+      userData.score = 0;
+      userData.time_taken_score = 0;
+      userData.zany_pts_score = 0;
+    }
     update(userDataRef, userData)
       .then(() => {})
       .catch(error => {
@@ -775,67 +778,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateRank() {
     const usersDataRef = query(
-      ref(database, `users`),
-      orderByChild('high_score'),
+      ref(database, `leaderboard`),
+      orderByChild('highScore'),
       startAt(1)
     );
     onValue(usersDataRef, snapshot => {
-      const data = snapshot.val();
-      // console.log(data);
-      if (data !== null) {
-        sortByRank(data);
+      let usersData = {}; 
+      snapshot.forEach(child => {
+        usersData[child.key] = child.val();
+      });
+      if (usersData !== null) {
+        fillRankData(usersData);
       }
     });
   }
 
-  function sortByRank(usersData) {
-    let userByRank = [];
-    const usersDataKeys = Object.keys(usersData);
-    let highScores = [];
-    let scores = [];
-    let timeTakenHighScores = [];
-    let timeTakenScores = [];
-    let rankScores = [];
-    let rankTimeTaken = [];
-    let rankPts = [];
-    usersDataKeys.forEach(userKey => {
-      highScores.push(usersData[userKey]['high_score']);
-      scores.push(usersData[userKey]['score']);
-      timeTakenHighScores.push(usersData[userKey][`time_taken_high_score`]);
-      timeTakenScores.push(usersData[userKey]['time_taken_score']);
-    });
-    for (let i = 0; i < highScores.length; i++) {
-      let rankPtsHighScore = highScores[i] / timeTakenHighScores[i];
-      let rankPtsScore = scores[i] / timeTakenScores[i];
-      if (rankPtsHighScore > rankPtsScore) {
-        rankScores.push(highScores[i]);
-        rankTimeTaken.push(timeTakenHighScores[i]);
-        rankPts.push(rankPtsHighScore);
-      } else {
-        rankScores.push(scores[i]);
-        rankTimeTaken.push(timeTakenScores[i]);
-        rankPts.push(rankPtsScore);
-      }
-    }
-    let ptsOld = [];
-    ptsOld.push(...rankPts);
-    rankPts.sort(function(a, b) {
-      return b - a;
-    });
-
-    rankPts.forEach(pts => {
-      let oldPtIndex = ptsOld.indexOf(pts);
-      let user = usersDataKeys[oldPtIndex];
-      userByRank.push(user);
-      ptsOld[oldPtIndex] = '';
-    });
-
-    if (
-      userByRank.includes(userAddress) &&
-      rankPts[userByRank.indexOf(userAddress)] !== 0
-    ) {
-      let userIndex = userByRank.indexOf(userAddress);
-      rankText.textContent = (userIndex + 1).toString();
+  function fillRankData(usersData) {
+    let userNames = Object.keys(usersData);
+    userNames.reverse();
+    if (userNames.includes(userAddress)) {
+      rankText.textContent = (userNames.indexOf(userAddress) + 1).toString();
     } else {
       rankText.textContent = '0';
     }
@@ -899,7 +861,6 @@ document.addEventListener('DOMContentLoaded', () => {
       time = `${mins}:${secs}`;
       gameTimer.textContent = time;
       timeTaken++;
-      console.log(timeTaken, time);
     }, 1000);
   }
 
