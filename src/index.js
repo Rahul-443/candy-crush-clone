@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginText = document.getElementById('login');
   const logoutText = document.getElementById('logout');
   const enterBtn = document.getElementById('enter');
-  const assetWrapper = document.getElementById('asset-wrapper');
   const rankText = document.getElementById('rank');
   const highScoreText = document.getElementById('score-high');
   const interval = document.getElementById('interval');
@@ -45,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const loader = document.querySelector('.loader');
   const gameTimer = document.querySelector(`.game-timer`);
   const timer = document.getElementById('interval-timer');
+  const gamePeriodInfo = document.querySelector(`.game-period-info`);
+  let pageReloadTimeout;
 
   const loggedIn = sessionStorage.getItem('userLoggedIn');
   const tpImgEl =
@@ -93,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   signInAnonymously(auth)
     .then(() => {
-      hideLoader(); //Bad UX - should so an error message if couldn't sign in
+      hideLoader(); //Bad UX - should show an error message if couldn't sign in
       checkUserLoggedIn();
     })
     .catch(error => {
@@ -101,6 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
   addBtnEvents();
+
+  setPageTimeout();
 
   function addBtnEvents() {
     enterBtn.addEventListener('click', login);
@@ -337,9 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function swapStart() {
-      if (movesLeft === 30) {
-        startGameTimer();
-      }
       imgBeingDragged = this.querySelector('.img-gumball').getAttribute('src');
       ibdAlt = this.querySelector('.img-gumball').getAttribute('alt');
       squareIdBeingDragged = parseInt(this.id);
@@ -362,7 +362,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function drop(e) {
       e.preventDefault();
       swapEnd.call(this);
-
       // console.log(this.id, 'drop');
     }
 
@@ -453,12 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
           squareIdBeingDragged
         ].innerHTML = `<img class="img-gumball" src="${imgBeingDragged}" alt="${ibdAlt}" />`;
       }
-      if (movesLeft >= 1) {
-        if (movesLeft > 28) {
-          //removing chances when user has started playing
-          removeOneChance();
-        }
-      } else {
+      if (movesLeft < 1) {
         let gameResTime = 5;
         timer.textContent = gameResTime;
         if (chancesLeft > 0) {
@@ -480,6 +474,11 @@ document.addEventListener('DOMContentLoaded', () => {
             clearInterval(gameResTimer);
           }
         }, 1000);
+      } else if (movesLeft === 29) {
+        removeOneChance();
+        startGameTimer();
+        playGameStartAnim();
+        resetPageTimeout();
       }
       setMoves();
     }
@@ -783,7 +782,7 @@ document.addEventListener('DOMContentLoaded', () => {
       startAt(1)
     );
     onValue(usersDataRef, snapshot => {
-      let usersData = {}; 
+      let usersData = {};
       snapshot.forEach(child => {
         usersData[child.key] = child.val();
       });
@@ -867,5 +866,29 @@ document.addEventListener('DOMContentLoaded', () => {
   function stopGameTimer() {
     clearInterval(gameTimeInterval);
     gameTimer.textContent = `00:00`;
+  }
+
+  function playGameStartAnim() {
+    const showGamePeriodClass = 'show-game-period-info';
+    gamePeriodInfo.classList.add(showGamePeriodClass);
+    setTimeout(() => {
+      gamePeriodInfo.classList.remove(showGamePeriodClass);
+    }, 4000);
+  }
+
+  function playGameComboAnim(score) {
+    const comboAnim = 'show-game-period-info';
+    gamePeriodInfo.classList.add(comboAnim);
+  }
+
+  function setPageTimeout() {
+    pageReloadTimeout = setTimeout(() => {
+      location.reload();
+    }, 60 * 60 * 1000);
+  }
+
+  function resetPageTimeout() {
+    clearTimeout(pageReloadTimeout);
+    setPageTimeout();
   }
 });

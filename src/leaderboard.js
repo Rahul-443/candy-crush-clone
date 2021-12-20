@@ -62,7 +62,7 @@ if (sessionStorage.getItem('userAddress') !== null) {
       console.log(error);
     });
 } else {
-  window.location.href = zanyGumballsSite;
+  location.href = zanyGumballsSite;
 }
 
 function logout() {
