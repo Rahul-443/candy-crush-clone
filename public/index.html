@@ -67,6 +67,12 @@
             <div class="chnc"></div>
             <div class="chnc"></div>
           </div>
+          <span class="buy-chances">
+            Get more chances &nbsp<i
+              class="far fa-plus-square"
+              id="btn-buy-chnc"
+            ></i>
+          </span>
         </div>
         <div class="info">
           <p>score - <span class="score">0</span></p>
@@ -110,6 +116,32 @@
           porro perferendis est odio sequi beatae distinctio dicta velit sunt
           nostrum!
         </p>
+      </div>
+    </section>
+    <section class="in-game-shop">
+      <div class="shop-container">
+        <div class="header">
+          <p>Balance: <span class="player-balance">0.0000 ZANY</span></p>
+          <i class="fas fa-times" id="shop-close-btn"></i>
+        </div>
+        <div class="game-shop-main">
+          <div class="game-shop-item">
+            <p>
+              <span class="shop-chnc-item"> +1 </span>
+              <br />
+              Chance
+            </p>
+            <button class="buy-item" id="btn-buy-one-chnc" disabled>Buy</button>
+          </div>
+          <div class="game-shop-item reset-chnc-item">
+            <p class="shop-chnc-item">
+              Reset Chances
+            </p>
+            <button class="buy-item" id="btn-reset-all-chnc" disabled>
+              Buy
+            </button>
+          </div>
+        </div>
       </div>
     </section>
     <script>

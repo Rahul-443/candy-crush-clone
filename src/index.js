@@ -45,6 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const gameTimer = document.querySelector(`.game-timer`);
   const timer = document.getElementById('interval-timer');
   const gamePeriodInfo = document.querySelector(`.game-period-info`);
+  const buyChncBtn = document.getElementById(`btn-buy-chnc`);
+  const shopCloseBtn = document.getElementById(`shop-close-btn`);
+  const inGameShopSec = document.querySelector(`.in-game-shop`);
+  const btnBuyOneChnc = document.getElementById(`btn-buy-one-chnc`);
+  const btnResetAllChnc = document.getElementById(`btn-reset-all-chnc`);
+  const playerBal = document.querySelector(`.player-balance`);
   let pageReloadTimeout;
 
   const loggedIn = sessionStorage.getItem('userLoggedIn');
@@ -52,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '<img src="./imgs/transparent.png" class="img-gumball" alt="" />';
   let bubblePopAudio = new Audio('./audios/bubble_pop_pitch_sharp2.mp3');
   let plopAudio = new Audio('./audios/plop.mp3');
+  const showInGameShop = 'show-in-game-shop';
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
@@ -61,9 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveScoreFunction = httpsCallable(functions, 'saveScore');
   const removeOneChanceFunction = httpsCallable(functions, 'removeOneChance');
   const addNewUserFunction = httpsCallable(functions, 'addNewUser');
+  const addOneChanceFunction = httpsCallable(functions, 'addOneChance');
+  const resetAllChancesFunction = httpsCallable(functions, 'resetAllChances');
 
   const wax = new waxjs.WaxJS({
-    rpcEndpoint: 'https://wax.greymass.com'
+    rpcEndpoint: 'https://wax.greymass.com',
+    tryAutoLogin: true
   });
   const api = new ExplorerApi(
     'https://wax.api.atomicassets.io',
@@ -111,6 +121,25 @@ document.addEventListener('DOMContentLoaded', () => {
     menuButton.addEventListener('click', () => {
       menu.classList.toggle('show-links');
     });
+    buyChncBtn.addEventListener('click', () => {
+      inGameShopSec.classList.add(showInGameShop);
+      if (chancesLeft === 0) {
+        btnResetAllChnc.disabled = false;
+      } else if (chancesLeft < 5) {
+        btnBuyOneChnc.disabled = false;
+      }
+    });
+    shopCloseBtn.addEventListener('click', () => {
+      closeInGameShopPopup();
+    });
+    btnBuyOneChnc.addEventListener('click', () => {
+      buyChances(1);
+    });
+    btnResetAllChnc.addEventListener('click', () => {
+      console.log(`click`);
+
+      buyChances(5);
+    });
   }
 
   function checkUserLoggedIn() {
@@ -124,19 +153,38 @@ document.addEventListener('DOMContentLoaded', () => {
         ...JSON.parse(sessionStorage.getItem('userStickerTemplateIds'))
       );
       listenUserData();
+    } else {
+      checkAutoLogin();
+    }
+  }
+
+  async function checkAutoLogin() {
+    if (await wax.isAutoLoginAvailable()) {
+      setUserCredentials();
     }
   }
 
   async function login() {
     try {
       await wax.login();
-      enterBtn.textContent = wax.userAccount;
-      userAddress = wax.userAccount;
-      userAddress = userAddress.replace(/\./g, '_');
-      listenUserData();
+      setUserCredentials();
     } catch (e) {
       console.log(e);
     }
+  }
+
+  function setUserCredentials() {
+     (async () => {
+      playerBal.textContent = `${await wax.rpc.get_currency_balance(
+        'metatoken.gm',
+        wax.userAccount,
+        'ZANY'
+      )}`;
+    })();
+    enterBtn.textContent = wax.userAccount;
+    userAddress = wax.userAccount;
+    userAddress = userAddress.replace(/\./g, '_');
+    listenUserData();
   }
 
   function logout() {
@@ -163,7 +211,13 @@ document.addEventListener('DOMContentLoaded', () => {
         addNewUser();
       } else {
         const result = snapshot.val();
-        chancesLeft = result.chances_left;
+        let cl = result.chances_left;
+        if (chancesLeft < cl) {
+          chancesLeft = cl;
+          updateChancesText();
+        } else {
+          chancesLeft = cl;
+        }
         highScore = result.high_score;
         initGame();
       }
@@ -890,5 +944,68 @@ document.addEventListener('DOMContentLoaded', () => {
   function resetPageTimeout() {
     clearTimeout(pageReloadTimeout);
     setPageTimeout();
+  }
+
+  function closeInGameShopPopup() {
+    inGameShopSec.classList.remove(showInGameShop);
+  }
+
+  async function buyChances(n) {
+    try {
+      if (!(await wax.isAutoLoginAvailable())) {
+        await wax.login();
+      }
+      const result = await wax.api.transact(
+        {
+          actions: [
+            {
+              account: 'metatoken.gm',
+              name: 'transfer',
+              authorization: [
+                {
+                  actor: wax.userAccount,
+                  permission: 'active'
+                }
+              ],
+              data: {
+                from: wax.userAccount,
+                to: 'zanygumplays',
+                quantity: `${n * 1}.0000 ZANY`,
+                memo: `I hereby declare to be granted ${n} chances`
+              }
+            }
+          ]
+        },
+        {
+          blocksBehind: 3,
+          expireSeconds: 1200
+        }
+      );
+      console.log(result);
+      const userData = {
+        user_id: userAddress
+      };
+      if (result && n === 1) {
+        addOneChanceFunction(userData)
+          .then(() => {
+            updateChancesText();
+            closeInGameShopPopup();
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      } else if (result && n === 5) {
+        resetAllChancesFunction(userData)
+          .then(() => {
+            updateChancesText();
+            closeInGameShopPopup();
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 });

@@ -62,6 +62,60 @@ exports.removeOneChance = functions.https.onCall((data, context) => {
   }
 });
 
+exports.addOneChance = functions.https.onCall((data, context) => {
+  const userId = data.user_id;
+  const ref = admin.database().ref(`users/${userId}/chances_left`);
+
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'The function must be called while authenticated'
+    );
+  } else {
+    ref.once('value', snapshot => {
+      if (!snapshot.exists()) {
+        throw new functions.https.HttpsError(
+          'not-found',
+          `The user's data was not found`
+        );
+      } else {
+        let cl = snapshot.val();
+        if (cl < 5 && cl > 0) {
+          ref.set(cl + 1);
+          return true;
+        }
+      }
+    });
+  }
+});
+
+exports.resetAllChances = functions.https.onCall((data, context) => {
+  const userId = data.user_id;
+  const ref = admin.database().ref(`users/${userId}/chances_left`);
+
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'The function must be called while authenticated'
+    );
+  } else {
+    ref.once('value', snapshot => {
+      if (!snapshot.exists()) {
+        throw new functions.https.HttpsError(
+          'not-found',
+          `The user's data was not found`
+        );
+      } else {
+        let cl = snapshot.val();
+        if (cl === 0) {
+          ref.set(cl + 5);
+          return true;
+        }
+      }
+    });
+  }
+});
+
 exports.addNewUser = functions.https.onCall((data, context) => {
   const userId = data.user_id;
   const ref = admin.database().ref(`users/${userId}`);
