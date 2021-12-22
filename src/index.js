@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     buyChncBtn.addEventListener('click', () => {
       inGameShopSec.classList.add(showInGameShop);
+      setBal();
       if (chancesLeft === 0) {
         btnResetAllChnc.disabled = false;
       } else if (chancesLeft < 5) {
@@ -174,13 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function setUserCredentials() {
-     (async () => {
-      playerBal.textContent = `${await wax.rpc.get_currency_balance(
-        'metatoken.gm',
-        wax.userAccount,
-        'ZANY'
-      )}`;
-    })();
+    setBal();
     enterBtn.textContent = wax.userAccount;
     userAddress = wax.userAccount;
     userAddress = userAddress.replace(/\./g, '_');
@@ -215,6 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (chancesLeft < cl) {
           chancesLeft = cl;
           updateChancesText();
+          randomizeGumballs();
         } else {
           chancesLeft = cl;
         }
@@ -304,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(matchInterval);
       }
 
-      matchInterval = setInterval(function() {
+      matchInterval = setInterval(() => {
         moveGbDown();
         checkForRowOfFour();
         checkForColumnOfFour();
@@ -950,6 +946,16 @@ document.addEventListener('DOMContentLoaded', () => {
     inGameShopSec.classList.remove(showInGameShop);
   }
 
+  function setBal() {
+    (async () => {
+      playerBal.textContent = `${await wax.rpc.get_currency_balance(
+        'metatoken.gm',
+        wax.userAccount,
+        'ZANY'
+      )}`;
+    })();
+  }
+
   async function buyChances(n) {
     try {
       if (!(await wax.isAutoLoginAvailable())) {
@@ -970,7 +976,7 @@ document.addEventListener('DOMContentLoaded', () => {
               data: {
                 from: wax.userAccount,
                 to: 'zanygumplays',
-                quantity: `${n * 1}.0000 ZANY`,
+                quantity: `${n * 10}.0000 ZANY`,
                 memo: `I hereby declare to be granted ${n} chances`
               }
             }
@@ -983,22 +989,25 @@ document.addEventListener('DOMContentLoaded', () => {
       );
       console.log(result);
       const userData = {
-        user_id: userAddress
+        user_id: userAddress,
+        trx_id: result.transaction_id
       };
-      if (result && n === 1) {
+      if (result.processed && n === 1) {
         addOneChanceFunction(userData)
           .then(() => {
             updateChancesText();
             closeInGameShopPopup();
+            showLoader();
           })
           .catch(error => {
             console.log(error);
           });
-      } else if (result && n === 5) {
+      } else if (result.processed && n === 5) {
         resetAllChancesFunction(userData)
           .then(() => {
             updateChancesText();
             closeInGameShopPopup();
+            showLoader();
           })
           .catch(error => {
             console.log(error);

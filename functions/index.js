@@ -1,5 +1,10 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const { createDfuseClient, waitFor } = require('@dfuse/client');
+const { DFUSE_API_KEY } = require('./config');
+
+global.fetch = require('node-fetch');
+global.WebSocket = require('ws');
 
 admin.initializeApp();
 
@@ -64,6 +69,7 @@ exports.removeOneChance = functions.https.onCall((data, context) => {
 
 exports.addOneChance = functions.https.onCall((data, context) => {
   const userId = data.user_id;
+  const trxId = data.trx_id;
   const ref = admin.database().ref(`users/${userId}/chances_left`);
 
   if (!context.auth) {
@@ -78,7 +84,7 @@ exports.addOneChance = functions.https.onCall((data, context) => {
           'not-found',
           `The user's data was not found`
         );
-      } else {
+      } else if (checkTrx(trxId, '10.0000 ZANY')) {
         let cl = snapshot.val();
         if (cl < 5 && cl > 0) {
           ref.set(cl + 1);
@@ -105,7 +111,7 @@ exports.resetAllChances = functions.https.onCall((data, context) => {
           'not-found',
           `The user's data was not found`
         );
-      } else {
+      } else if (checkTrx(trxId, '50.0000 ZANY')) {
         let cl = snapshot.val();
         if (cl === 0) {
           ref.set(cl + 5);
@@ -276,4 +282,25 @@ function changeValToTime(timeTaken) {
   }
   time = `${mins}:${secs}`;
   return time;
+}
+
+async function checkTrx(id, quantity) {
+  const client = createDfuseClient({
+    apiKey: DFUSE_API_KEY,
+    network: 'wax.dfuse.eosnation.io'
+  });
+
+  await client
+    .fetchTransaction(id)
+    .then(res => {
+      if ((res.transaction.actions[0].data.quantity = quantity)) {
+        return true;
+      } else {
+        return false;
+      }
+    })
+    .catch(error => {
+      console.log(error);
+      return false;
+    });
 }
