@@ -97,6 +97,7 @@ exports.addOneChance = functions.https.onCall((data, context) => {
 
 exports.resetAllChances = functions.https.onCall((data, context) => {
   const userId = data.user_id;
+  const trxId = data.trx_id;
   const ref = admin.database().ref(`users/${userId}/chances_left`);
 
   if (!context.auth) {
@@ -293,7 +294,11 @@ async function checkTrx(id, quantity) {
   await client
     .fetchTransaction(id)
     .then(res => {
-      if ((res.transaction.actions[0].data.quantity = quantity)) {
+      if (
+        (res.transaction.actions[0].data.to =
+          'zanygumplays' &&
+          (res.transaction.actions[0].data.quantity = quantity))
+      ) {
         return true;
       } else {
         return false;

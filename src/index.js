@@ -977,7 +977,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 from: wax.userAccount,
                 to: 'zanygumplays',
                 quantity: `${n * 10}.0000 ZANY`,
-                memo: `I hereby declare to be granted ${n} chances`
+                memo: `Buy ${n} chances`
               }
             }
           ]
